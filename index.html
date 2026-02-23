@@ -11,25 +11,47 @@
 <body>
   <div id="root"></div>
 
-  <script type="importmap">
-  {
-    "imports": {
-      "react": "https://esm.sh/react@18.3.1",
-      "react-dom": "https://esm.sh/react-dom@18.3.1",
-      "react-dom/client": "https://esm.sh/react-dom@18.3.1/client",
-      "react/jsx-runtime": "https://esm.sh/react@18.3.1/jsx-runtime"
-    }
-  }
-  </script>
-  <script type="module">
-    import React from "react";
-    import { createRoot } from "react-dom/client";
+  <!-- React UMD builds (globally available as React / ReactDOM) -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 
-    // Dynamically import the component
-    const { default: App } = await import("./fmkify-f1.js");
+  <!-- Babel standalone compiles JSX in the browser -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-    const root = createRoot(document.getElementById("root"));
-    root.render(React.createElement(App));
+  <script type="text/babel" data-type="module">
+    // Babel standalone doesn't handle external src + import well,
+    // so we fetch the component source, strip the import line (React is global),
+    // strip the export default, compile and run it, then mount.
+
+    (async () => {
+      const res = await fetch("./fmkify-f1.jsx");
+      let src = await res.text();
+
+      // Remove the ES module import — React hooks are available as globals
+      // via the UMD build (React.useState, etc.)
+      src = src.replace(
+        /^import\s*\{[^}]*\}\s*from\s*["']react["'];?\s*/m,
+        'const { useState, useRef, useEffect, useCallback } = React;\n'
+      );
+
+      // Replace "export default function App" with just "function App"
+      src = src.replace(/export\s+default\s+function\s+App/, 'function App');
+
+      // Compile JSX → JS via Babel
+      const compiled = Babel.transform(src, {
+        presets: ['react'],
+        filename: 'fmkify-f1.jsx',
+      }).code;
+
+      // Execute the compiled code in global scope
+      const script = document.createElement('script');
+      script.textContent = compiled;
+      document.body.appendChild(script);
+
+      // Mount
+      const root = ReactDOM.createRoot(document.getElementById('root'));
+      root.render(React.createElement(App));
+    })();
   </script>
 </body>
 </html>
