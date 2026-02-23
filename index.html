@@ -26,7 +26,7 @@
     import { createRoot } from "react-dom/client";
 
     // Dynamically import the component
-    const { default: App } = await import("./fmkify-f1.jsx");
+    const { default: App } = await import("./fmkify-f1.js");
 
     const root = createRoot(document.getElementById("root"));
     root.render(React.createElement(App));
