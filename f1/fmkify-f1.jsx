@@ -61,9 +61,9 @@ const DRIVER_PHOTOS = {
 const HELMS = ["🏎️","🏁","⚡","🌟","💨","🏆","🎯","🚀","🦊","🔥","🌪️"];
 
 // ── Storage ─────────────────────────────────────────────────────
-// API_BASE: set to "" when the API routes live on the same origin (Vercel),
-// or to a full URL (e.g. "https://fmkify-f1.vercel.app") during local dev.
-const API_BASE = "";
+// API_BASE: set to "/api/f1" for the /f1 subpath deployment,
+// or to a full URL (e.g. "https://www.fmkify.com/api/f1") during local dev.
+const API_BASE = "/api/f1";
 
 function emptyTallies() {
   const t = {}; DRIVERS.forEach(d => { t[d.id] = {f:0,m:0,k:0}; });
@@ -72,7 +72,7 @@ function emptyTallies() {
 
 async function fetchToken() {
   try {
-    const r = await fetch(`${API_BASE}/api/token`);
+    const r = await fetch(`${API_BASE}/token`);
     if (!r.ok) return null;
     const data = await r.json();
     return data.token || null;
@@ -81,7 +81,7 @@ async function fetchToken() {
 
 async function loadGlobal() {
   try {
-    const r = await fetch(`${API_BASE}/api/tallies`);
+    const r = await fetch(`${API_BASE}/tallies`);
     if (!r.ok) return null;
     return await r.json();
   } catch(e) { return null; }
@@ -91,7 +91,7 @@ async function loadGlobal() {
 // error is the parsed error response body on 4xx/5xx.
 async function recordVote(vote, token) {
   try {
-    const r = await fetch(`${API_BASE}/api/vote`, {
+    const r = await fetch(`${API_BASE}/vote`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ f: vote.f, m: vote.m, k: vote.k, token }),
