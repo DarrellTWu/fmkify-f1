@@ -2,7 +2,7 @@ import crypto from "crypto";
 import {
   redis, cors, errorJson,
   SESSION_TTL, TOKEN_RATE_LIMIT_TTL,
-} from "./_lib.js";
+} from "../_lib.js";
 
 export default async function handler(req, res) {
   if (cors(req, res)) return;

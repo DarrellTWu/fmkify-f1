@@ -1,4 +1,4 @@
-import { redis, cors, errorJson, DRIVER_COUNT } from "./_lib.js";
+import { redis, cors, errorJson, DRIVER_COUNT } from "../_lib.js";
 
 export default async function handler(req, res) {
   if (cors(req, res)) return;

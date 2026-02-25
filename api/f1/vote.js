@@ -1,7 +1,7 @@
 import {
   redis, cors, errorJson,
   DRIVER_COUNT, COOLDOWN_MS, SESSION_BUDGET, SESSION_TTL,
-} from "./_lib.js";
+} from "../_lib.js";
 
 // ---------------------------------------------------------------------------
 // Validation
