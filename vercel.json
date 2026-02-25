@@ -11,6 +11,7 @@
     }
   ],
   "rewrites": [
+    { "source": "/f1", "destination": "/f1/index.html" },
     { "source": "/f1/rankings", "destination": "/f1/index.html" }
   ]
 }
