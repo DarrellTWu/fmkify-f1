@@ -63,7 +63,7 @@ const HELMS = ["🏎️","🏁","⚡","🌟","💨","🏆","🎯","🚀","🦊",
 // ── Storage ─────────────────────────────────────────────────────
 // API_BASE: set to "" when the API routes live on the same origin (Vercel),
 // or to a full URL (e.g. "https://fmkify-f1.vercel.app") during local dev.
-const API_BASE = "/api/f1";
+const API_BASE = "";
 
 function emptyTallies() {
   const t = {}; DRIVERS.forEach(d => { t[d.id] = {f:0,m:0,k:0}; });
@@ -72,7 +72,7 @@ function emptyTallies() {
 
 async function fetchToken() {
   try {
-    const r = await fetch(`${API_BASE}/token`);
+    const r = await fetch(`${API_BASE}/api/token`);
     if (!r.ok) return null;
     const data = await r.json();
     return data.token || null;
@@ -81,7 +81,7 @@ async function fetchToken() {
 
 async function loadGlobal() {
   try {
-    const r = await fetch(`${API_BASE}/tallies`);
+    const r = await fetch(`${API_BASE}/api/tallies`);
     if (!r.ok) return null;
     return await r.json();
   } catch(e) { return null; }
@@ -91,7 +91,7 @@ async function loadGlobal() {
 // error is the parsed error response body on 4xx/5xx.
 async function recordVote(vote, token) {
   try {
-    const r = await fetch(`${API_BASE}/vote`, {
+    const r = await fetch(`${API_BASE}/api/vote`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ f: vote.f, m: vote.m, k: vote.k, token }),
@@ -141,20 +141,30 @@ function useIsMobile() {
 }
 
 // ── Driver Card ─────────────────────────────────────────────────
-function DriverCard({driver:d,choice,onAssign,dealDelay,dealing,pulseId,rejectedId,dropHover,onDragOver,onDragLeave,cardRefs,isMobile}) {
+function DriverCard({driver:d,choice,onAssign,dealDelay,dealing,pulseId,rejectedId,dropHover,onDragOver,onDragLeave,cardRefs,isMobile,activeBadge}) {
   const tc = TC[d.team]||"#FF6B9D";
   const [imgOk,setImgOk] = useState(false);
   const [imgErr,setImgErr] = useState(false);
   let cls = "fmk-card";
   if (dealing) cls+=" dealing"; if (choice) cls+=" sel-"+choice;
   if (pulseId===d.id) cls+=" pulse"; if (rejectedId===d.id) cls+=" rejected"; if (dropHover===d.id) cls+=" drop-hover";
+  if (activeBadge&&!choice) cls+=" targetable";
   const stampE = choice==='f'?'🔥':choice==='m'?'💍':choice==='k'?'💀':'';
   const stampL = choice==='f'?'F':choice==='m'?'M':choice==='k'?'K':'';
   const style = {};
   if (dealing) { style["--deal-delay"]=dealDelay+"s"; style["--rot"]=(dealDelay===0?'-4':dealDelay<.2?'2':'-3')+"deg"; }
+  if (activeBadge&&!choice) style.cursor='pointer';
+
+  const handleCardClick = (e) => {
+    // If a badge is active and this card doesn't have a choice yet, assign it
+    if (activeBadge && !choice) { onAssign(d.id, activeBadge); return; }
+    // If a badge is active and this card already has a choice, reassign (swap)
+    if (activeBadge) { onAssign(d.id, activeBadge); return; }
+  };
 
   return (
     <div className={cls} style={style} ref={el=>{if(cardRefs)cardRefs.current[d.id]=el;}}
+      onClick={handleCardClick}
       onDragOver={e=>{e.preventDefault();onDragOver?.(d.id);}} onDragLeave={()=>onDragLeave?.()}
       onDrop={e=>{e.preventDefault();const c=e.dataTransfer.getData("text/plain");if(c)onAssign(d.id,c);onDragLeave?.();}}>
       <div className={"fmk-stamp"+(choice?" show "+choice+"-stamp":"")}>
@@ -196,6 +206,7 @@ function GameView({onShowRankings,globalData,onVote}) {
   const [dropHover,setDropHover]=useState(null);
   const [ghostDrag,setGhostDrag]=useState(null);
   const [slowdown,setSlowdown]=useState(null); // friendly message from 429 budget_exceeded
+  const [activeBadge,setActiveBadge]=useState(null); // tap-to-assign: which badge is "held"
   const busyRef=useRef(false); const cardRefs=useRef({}); const ghostRef=useRef(null);
   const isMobile=useIsMobile();
 
@@ -210,6 +221,7 @@ function GameView({onShowRankings,globalData,onVote}) {
       Object.keys(prev).forEach(id=>{const n=parseInt(id);if(prev[id]===ch&&n!==did){old=n;}else if(n!==did){next[id]=prev[id];}});
       next[did]=ch;if(old){setRejectedId(old);setTimeout(()=>setRejectedId(null),450);}return next;});
     setPulseId(did);setTimeout(()=>setPulseId(null),400);
+    setActiveBadge(null);
   },[]);
 
   const unassign=useCallback((ch)=>{setSels(prev=>{const n={};Object.keys(prev).forEach(id=>{if(prev[id]!==ch)n[id]=prev[id];});return n;});},[]);
@@ -244,8 +256,8 @@ function GameView({onShowRankings,globalData,onVote}) {
     setTimeout(()=>{setShowConf(false);setTrio(randomTrio());setSels({});setRound(r=>r+1);busyRef.current=false;},1200);
   },[allDone,sels,onVote]);
 
-  const shuffle=()=>{if(!busyRef.current){setTrio(randomTrio());setSels({});}};
-  const clearAll=()=>setSels({});
+  const shuffle=()=>{if(!busyRef.current){setTrio(randomTrio());setSels({});setActiveBadge(null);}};
+  const clearAll=()=>{setSels({});setActiveBadge(null);};
   const nameForChoice=(c)=>{const d=trio.find(dr=>sels[dr.id]===c);return d?d.name.split(' ').pop():null;};
   const done=allDone();
   const usedChoices={}; Object.values(sels).forEach(c=>{usedChoices[c]=true;});
@@ -270,9 +282,10 @@ function GameView({onShowRankings,globalData,onVote}) {
       {!isMobile && <div className="fmk-badge-bar">
         {[{c:'f',e:'🔥',l:'F',dl:0},{c:'m',e:'💍',l:'M',dl:1},{c:'k',e:'💀',l:'K',dl:2}].map(b=>{
           const isUsed=!!usedChoices[b.c];
-          return <div key={b.c} className={`drag-badge ${b.c}-badge${isUsed?' used':''}`} style={{animationDelay:isUsed?undefined:b.dl+'s'}}
-            draggable={!isUsed} onClick={()=>{if(isUsed)unassign(b.c);}}
-            onDragStart={e=>{if(isUsed){e.preventDefault();return;}e.dataTransfer.setData("text/plain",b.c);e.dataTransfer.effectAllowed="move";}}
+          const isPicked=activeBadge===b.c;
+          return <div key={b.c} className={`drag-badge ${b.c}-badge${isUsed?' used':''}${isPicked?' picked':''}`} style={{animationDelay:isUsed?undefined:b.dl+'s'}}
+            draggable={!isUsed&&!isPicked} onClick={()=>{if(isUsed){unassign(b.c);}else{setActiveBadge(prev=>prev===b.c?null:b.c);}}}
+            onDragStart={e=>{if(isUsed||isPicked){e.preventDefault();return;}e.dataTransfer.setData("text/plain",b.c);e.dataTransfer.effectAllowed="move";}}
             onTouchStart={e=>{if(!isUsed)onTouchStart(b.c,e);}} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
             <span>{b.e}</span><span className="badge-label">{b.l}</span>
           </div>;
@@ -280,7 +293,7 @@ function GameView({onShowRankings,globalData,onVote}) {
       </div>}
 
       <div className="fmk-cards-grid">
-        {trio.map((d,i)=><DriverCard key={d.id} driver={d} choice={sels[d.id]||null} onAssign={assign} dealDelay={i*.1} dealing={dealing} pulseId={pulseId} rejectedId={rejectedId} dropHover={dropHover} onDragOver={id=>setDropHover(id)} onDragLeave={()=>setDropHover(null)} cardRefs={cardRefs} isMobile={isMobile}/>)}
+        {trio.map((d,i)=><DriverCard key={d.id} driver={d} choice={sels[d.id]||null} onAssign={assign} dealDelay={i*.1} dealing={dealing} pulseId={pulseId} rejectedId={rejectedId} dropHover={dropHover} onDragOver={id=>setDropHover(id)} onDragLeave={()=>setDropHover(null)} cardRefs={cardRefs} isMobile={isMobile} activeBadge={activeBadge}/>)}
       </div>
 
       <div className="fmk-action-row">
@@ -454,6 +467,11 @@ html,body{margin:0;padding:0;height:100%;background:linear-gradient(155deg,#160a
 .drag-badge:hover{transform:scale(1.1)}
 .drag-badge.used{opacity:.25;filter:grayscale(.8);cursor:pointer;pointer-events:auto!important;animation:none;transform:scale(.92)}
 .drag-badge.used:hover{opacity:.5;filter:grayscale(.4);transform:scale(1)}
+.drag-badge.picked{animation:fmk-pulse .6s ease-in-out infinite;cursor:pointer;transform:scale(1.15)}
+.f-badge.picked{box-shadow:0 0 24px var(--f-glow);background:rgba(255,23,68,.15)}
+.m-badge.picked{box-shadow:0 0 24px var(--m-glow);background:rgba(41,121,255,.15)}
+.k-badge.picked{box-shadow:0 0 24px var(--k-glow);background:rgba(170,0,255,.15)}
+.fmk-card.targetable{border-color:rgba(255,255,255,.25);animation:fmk-pulse 1.5s ease-in-out infinite}
 .ghost-badge{position:fixed;width:54px;height:54px;border-radius:50%;font-size:1.5rem;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:200;opacity:.85;transform:translate(-50%,-50%) scale(1.2);border:3px solid}
 .f-ghost{border-color:var(--f-color);background:rgba(255,23,68,.25)}
 .m-ghost{border-color:var(--m-color);background:rgba(41,121,255,.25)}
