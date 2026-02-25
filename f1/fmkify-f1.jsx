@@ -63,7 +63,7 @@ const HELMS = ["🏎️","🏁","⚡","🌟","💨","🏆","🎯","🚀","🦊",
 // ── Storage ─────────────────────────────────────────────────────
 // API_BASE: set to "" when the API routes live on the same origin (Vercel),
 // or to a full URL (e.g. "https://fmkify-f1.vercel.app") during local dev.
-const API_BASE = "/api/f1";
+const API_BASE = "";
 
 function emptyTallies() {
   const t = {}; DRIVERS.forEach(d => { t[d.id] = {f:0,m:0,k:0}; });
@@ -72,7 +72,7 @@ function emptyTallies() {
 
 async function fetchToken() {
   try {
-    const r = await fetch(`${API_BASE}/token`);
+    const r = await fetch(`${API_BASE}/api/token`);
     if (!r.ok) return null;
     const data = await r.json();
     return data.token || null;
@@ -81,7 +81,7 @@ async function fetchToken() {
 
 async function loadGlobal() {
   try {
-    const r = await fetch(`${API_BASE}/tallies`);
+    const r = await fetch(`${API_BASE}/api/tallies`);
     if (!r.ok) return null;
     return await r.json();
   } catch(e) { return null; }
@@ -91,7 +91,7 @@ async function loadGlobal() {
 // error is the parsed error response body on 4xx/5xx.
 async function recordVote(vote, token) {
   try {
-    const r = await fetch(`${API_BASE}/vote`, {
+    const r = await fetch(`${API_BASE}/api/vote`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ f: vote.f, m: vote.m, k: vote.k, token }),
@@ -370,11 +370,29 @@ function RankingsView({onBack,globalData}) {
 }
 
 // ── App ─────────────────────────────────────────────────────────
+function getInitialView() {
+  if (typeof window === "undefined") return "game";
+  return window.location.pathname.endsWith("/rankings") ? "rankings" : "game";
+}
+
 export default function App() {
-  const [view,setView]=useState("game");
+  const [view,setView]=useState(getInitialView);
   const [globalData,setGlobalData]=useState(null);
   const [loading,setLoading]=useState(true);
   const tokenRef=useRef(null);
+
+  // Sync browser back/forward buttons with view state
+  useEffect(()=>{
+    const onPop = () => setView(window.location.pathname.endsWith("/rankings") ? "rankings" : "game");
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  },[]);
+
+  const navigateTo = useCallback((target) => {
+    const path = target === "rankings" ? "/f1/rankings" : "/f1/";
+    window.history.pushState(null, "", path);
+    setView(target);
+  },[]);
 
   useEffect(()=>{(async()=>{
     // Fetch session token and initial tallies in parallel
@@ -401,8 +419,8 @@ export default function App() {
             <div style={{textAlign:'center'}}><div style={{fontSize:'3rem',animation:'fmk-bob 1.5s ease-in-out infinite'}}>🏎️</div>
             <div style={{fontSize:'1.2rem',fontWeight:700,color:'rgba(255,255,255,.6)',marginTop:'1rem'}}>Loading FMKify...</div></div></div>
         : view==="game"
-          ? <GameView onShowRankings={()=>setView("rankings")} globalData={globalData} onVote={handleVote}/>
-          : <RankingsView onBack={()=>setView("game")} globalData={globalData}/>}
+          ? <GameView onShowRankings={()=>navigateTo("rankings")} globalData={globalData} onVote={handleVote}/>
+          : <RankingsView onBack={()=>navigateTo("game")} globalData={globalData}/>}
     </div>
     <style>{CSS}</style>
   </>);

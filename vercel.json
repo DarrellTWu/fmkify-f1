@@ -1,7 +1,7 @@
 {
   "headers": [
     {
-      "source": "/api/f1/(.*)",
+      "source": "/api/(.*)",
       "headers": [
         { "key": "Access-Control-Allow-Origin", "value": "https://www.fmkify.com" },
         { "key": "Access-Control-Allow-Methods", "value": "GET,POST,OPTIONS" },
@@ -9,5 +9,8 @@
         { "key": "Access-Control-Max-Age", "value": "86400" }
       ]
     }
+  ],
+  "rewrites": [
+    { "source": "/f1/rankings", "destination": "/f1/index.html" }
   ]
 }
