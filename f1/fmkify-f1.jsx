@@ -458,7 +458,7 @@ html,body{margin:0;padding:0;height:100%;background:linear-gradient(155deg,#160a
 .fmk-stamp.k-stamp{color:var(--k-color);border-color:var(--k-color);background:rgba(170,0,255,.12)}
 .stamp-txt{font-size:2.2rem}
 .fmk-shimmer{position:absolute;inset:0;z-index:5;pointer-events:none;border-radius:var(--radius);background:linear-gradient(120deg,transparent 30%,rgba(219,112,147,.06) 50%,transparent 70%);animation:fmk-shimmer 2s ease-in-out infinite}
-.fmk-banner{display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.fmk-banner{display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;aspect-ratio:4/3}
 .fmk-banner .team-bg{position:absolute;inset:0;opacity:.85}
 .fmk-banner .fmk-num{position:absolute;font-size:clamp(4rem,12vw,7rem);font-weight:700;color:rgba(255,255,255,.18);line-height:1;transition:opacity .4s;z-index:1}
 .fmk-banner .driver-photo{position:relative;z-index:2;width:100%;display:block;object-fit:cover;object-position:center top;transition:opacity .5s;filter:drop-shadow(0 6px 20px rgba(0,0,0,.5))}
