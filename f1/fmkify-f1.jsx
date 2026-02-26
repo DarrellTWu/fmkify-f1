@@ -32,7 +32,7 @@ const TC = {
 };
 
 // To flip to self-hosted images later, change F1_CDN and update paths in DRIVER_PHOTOS.
-const F1_CDN = "https://media.formula1.com/image/upload/c_lfill,w_400/q_auto/d_common:f1:2026:fallback:driver:2026fallbackdriverright.webp/v1740000000/common/f1/2026";
+const F1_CDN = "https://media.formula1.com/image/upload/c_thumb,g_face,w_400,h_400/q_auto/d_common:f1:2026:fallback:driver:2026fallbackdriverright.webp/v1740000000/common/f1/2026";
 const DRIVER_PHOTOS = {
   1:`${F1_CDN}/mclaren/lannor01/2026mclarenlannor01right.webp`,
   2:`${F1_CDN}/mclaren/oscpia01/2026mclarenoscpia01right.webp`,
