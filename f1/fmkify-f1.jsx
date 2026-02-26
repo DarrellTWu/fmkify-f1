@@ -389,7 +389,7 @@ export default function App() {
   },[]);
 
   const navigateTo = useCallback((target) => {
-    const path = target === "rankings" ? "/f1/rankings" : "/f1/";
+    const path = target === "rankings" ? "/f1/rankings/" : "/f1/";
     window.history.pushState(null, "", path);
     setView(target);
   },[]);
