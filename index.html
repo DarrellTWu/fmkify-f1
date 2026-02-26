@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>FMKify — The Game You Shouldn't Admit You Play</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    html, body {
+      margin: 0; padding: 0; height: 100%;
+      background: linear-gradient(155deg, #160a14 0%, #261222 25%, #2e1628 50%, #180c16 100%);
+    }
+    :root {
+      --pink: #DB7093; --orange: #E8A0BF; --yellow: #FFB696;
+      --f-color: #ff1744; --m-color: #2979ff; --k-color: #aa00ff;
+    }
+
+    /* Ambient blobs */
+    .blob { position: fixed; border-radius: 50%; pointer-events: none; z-index: 0; filter: blur(80px); }
+    .blob-1 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(219,112,147,.25), transparent 70%); top: -15%; right: -10%; animation: drift 18s ease-in-out infinite alternate; }
+    .blob-2 { width: 400px; height: 400px; background: radial-gradient(circle, rgba(255,182,150,.15), transparent 70%); bottom: -10%; left: -8%; animation: drift 14s ease-in-out infinite alternate-reverse; }
+
+    @keyframes drift { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(30px,-20px) scale(1.15); } }
+    @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .6; } }
+
+    .page {
+      position: relative; z-index: 1;
+      min-height: 100%; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      font-family: 'Fredoka', 'Segoe UI', system-ui, sans-serif;
+      color: #e0e0e0; padding: 2rem 1.5rem; box-sizing: border-box;
+    }
+
+    .hero { text-align: center; max-width: 600px; }
+
+    .logo {
+      font-size: clamp(2.5rem, 8vw, 4rem); font-weight: 700; color: #fff;
+      letter-spacing: -1px; margin-bottom: .25rem;
+    }
+    .logo .accent {
+      background: linear-gradient(135deg, var(--pink), var(--orange));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .logo-emoji { font-size: clamp(2rem, 6vw, 3rem); }
+
+    .tagline {
+      font-size: clamp(1rem, 3vw, 1.3rem); color: rgba(255,255,255,.45);
+      font-weight: 600; margin-bottom: 2.5rem; line-height: 1.4;
+    }
+    .tagline em { font-style: italic; color: rgba(255,255,255,.55); }
+
+    /* Game cards */
+    .games { display: flex; flex-wrap: wrap; gap: 1.2rem; justify-content: center; margin-bottom: 2.5rem; width: 100%; max-width: 700px; }
+
+    .game-card {
+      flex: 1 1 280px; max-width: 340px;
+      background: rgba(255,255,255,.04); border: 2px solid rgba(255,255,255,.08);
+      border-radius: 1.5rem; padding: 2rem 1.8rem;
+      text-decoration: none; color: #fff;
+      transition: transform .3s, border-color .3s, box-shadow .3s;
+      display: flex; flex-direction: column; align-items: center; text-align: center;
+    }
+    .game-card:hover {
+      transform: scale(1.03); border-color: rgba(219,112,147,.4);
+      box-shadow: 0 8px 40px rgba(219,112,147,.15);
+    }
+    .game-card:active { transform: scale(.98); }
+
+    .game-emoji { font-size: 3rem; margin-bottom: .75rem; animation: bob 3s ease-in-out infinite; }
+    .game-title { font-size: 1.4rem; font-weight: 700; margin-bottom: .3rem; }
+    .game-title .accent {
+      background: linear-gradient(135deg, var(--pink), var(--orange));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .game-desc { font-size: .85rem; color: rgba(255,255,255,.4); font-weight: 600; line-height: 1.4; }
+    .game-badge {
+      margin-top: 1rem; font-size: .75rem; font-weight: 700; padding: .35rem .9rem;
+      border-radius: 2rem; display: inline-block;
+    }
+    .badge-live {
+      background: linear-gradient(135deg, var(--pink), var(--orange)); color: #fff;
+    }
+    .badge-soon {
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
+      color: rgba(255,255,255,.3); animation: pulse 3s ease-in-out infinite;
+    }
+
+    .game-card.coming-soon { cursor: default; opacity: .5; }
+    .game-card.coming-soon:hover { transform: none; border-color: rgba(255,255,255,.08); box-shadow: none; }
+
+    /* How it works */
+    .how {
+      text-align: center; margin-bottom: 2rem; max-width: 500px;
+    }
+    .how-title { font-size: 1rem; font-weight: 700; color: rgba(255,255,255,.5); margin-bottom: .5rem; }
+    .how-steps {
+      display: flex; justify-content: center; gap: 1.5rem; font-size: .85rem;
+      color: rgba(255,255,255,.35); font-weight: 600;
+    }
+    .how-step { display: flex; flex-direction: column; align-items: center; gap: .25rem; }
+    .step-emoji { font-size: 1.5rem; }
+
+    /* Footer */
+    .footer {
+      text-align: center; font-size: .75rem; color: rgba(255,255,255,.2);
+      font-weight: 600; display: flex; align-items: center; gap: .4rem;
+      margin-top: auto; padding-top: 2rem;
+    }
+    .footer a { color: rgba(255,255,255,.25); text-decoration: none; transition: color .2s; }
+    .footer a:hover { color: rgba(255,255,255,.5); }
+    .footer-sep { color: rgba(255,255,255,.12); }
+  </style>
+</head>
+<body>
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+
+  <div class="page">
+    <div class="hero">
+      <div class="logo">
+        <span class="logo-emoji">🔥💍💀</span><br>
+        <span class="accent">FMKify</span>
+      </div>
+      <div class="tagline">
+        The classic game. Your favorite rosters.<br>
+        <em>No wrong answers. Some questionable ones.</em>
+      </div>
+    </div>
+
+    <div class="how">
+      <div class="how-title">How it works</div>
+      <div class="how-steps">
+        <div class="how-step"><span class="step-emoji">🎲</span> 3 random picks</div>
+        <div class="how-step"><span class="step-emoji">🤔</span> Assign F · M · K</div>
+        <div class="how-step"><span class="step-emoji">📊</span> See what everyone thinks</div>
+      </div>
+    </div>
+
+    <div class="games">
+      <a href="/f1/" class="game-card">
+        <div class="game-emoji">🏎️</div>
+        <div class="game-title"><span class="accent">FMKify F1</span></div>
+        <div class="game-desc">22 drivers. 3 at a time. The 2026 grid gets judged.</div>
+        <div class="game-badge badge-live">▶ Play Now</div>
+      </a>
+
+      <div class="game-card coming-soon">
+        <div class="game-emoji">🏀</div>
+        <div class="game-title">FMKify NBA</div>
+        <div class="game-desc">30 teams of hoopers. Zero chill. Coming soon.</div>
+        <div class="game-badge badge-soon">Coming Soon</div>
+      </div>
+
+      <div class="game-card coming-soon">
+        <div class="game-emoji">⚽</div>
+        <div class="game-title">FMKify Football</div>
+        <div class="game-desc">The beautiful game meets the unhinged game.</div>
+        <div class="game-badge badge-soon">Coming Soon</div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span>© 2026 FMKify</span>
+      <span class="footer-sep">·</span>
+      <a href="mailto:admin@fmkify.com">admin@fmkify.com</a>
+    </div>
+  </div>
+</body>
+</html>

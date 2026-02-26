@@ -303,6 +303,8 @@ function GameView({onShowRankings,globalData,onVote}) {
 
       {done&&!isMobile && <div className="fmk-submit-bar"><button className="btn-submit" onClick={submit}>✨ Submit Vote ✨</button></div>}
 
+      {!isMobile && <Footer/>}
+
       {isMobile && <div className="fmk-sticky">
         <div className="sticky-slots">
           {[{c:'f',e:'🔥',l:'F'},{c:'m',e:'💍',l:'M'},{c:'k',e:'💀',l:'K'}].map(s=>{
@@ -364,7 +366,19 @@ function RankingsView({onBack,globalData}) {
           </div>);})
         :<div className="empty-msg"><div className="big">🏁</div><div>No votes yet — go play!</div></div>}
       </div>
+      <Footer/>
       <div className="back-bar"><button className="btn-back" onClick={onBack}>← Back to Game</button></div>
+    </div>
+  );
+}
+
+// ── Footer ──────────────────────────────────────────────────────
+function Footer() {
+  return (
+    <div className="fmk-footer">
+      <a href="/" className="footer-link">FMKify</a>
+      <span className="footer-sep">·</span>
+      <a href="mailto:admin@fmkify.com" className="footer-link">admin@fmkify.com</a>
     </div>
   );
 }
@@ -372,7 +386,8 @@ function RankingsView({onBack,globalData}) {
 // ── App ─────────────────────────────────────────────────────────
 function getInitialView() {
   if (typeof window === "undefined") return "game";
-  return window.location.pathname.endsWith("/rankings") ? "rankings" : "game";
+  const p = window.location.pathname.replace(/\/+$/, "");
+  return p.endsWith("/rankings") ? "rankings" : "game";
 }
 
 export default function App() {
@@ -383,7 +398,10 @@ export default function App() {
 
   // Sync browser back/forward buttons with view state
   useEffect(()=>{
-    const onPop = () => setView(window.location.pathname.endsWith("/rankings") ? "rankings" : "game");
+    const onPop = () => {
+      const p = window.location.pathname.replace(/\/+$/, "");
+      setView(p.endsWith("/rankings") ? "rankings" : "game");
+    };
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
   },[]);
@@ -542,6 +560,10 @@ html,body{margin:0;padding:0;height:100%;background:linear-gradient(155deg,#160a
 .back-bar{padding:.5rem 1rem 1.25rem;flex-shrink:0}
 .btn-back{font-family:inherit;width:100%;font-size:1rem;font-weight:700;padding:.8rem;border:1.5px solid rgba(255,255,255,.1);border-radius:3rem;cursor:pointer;background:rgba(255,255,255,.05);color:#fff;transition:background .2s,transform .2s}
 .btn-back:hover{background:rgba(255,255,255,.1)}
+.fmk-footer{text-align:center;padding:.6rem 1rem;font-size:.75rem;color:rgba(255,255,255,.2);font-weight:600;flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:.4rem}
+.footer-link{color:rgba(255,255,255,.25);text-decoration:none;transition:color .2s}
+.footer-link:hover{color:rgba(255,255,255,.5)}
+.footer-sep{color:rgba(255,255,255,.12)}
 @media(max-width:768px){
   .fmk-app{max-width:100%}.fmk-badge-bar{display:none!important}
   .fmk-cards-grid{flex-direction:column;gap:.45rem;padding:.3rem 1rem;justify-content:flex-start}
