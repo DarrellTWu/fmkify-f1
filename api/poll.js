@@ -15,6 +15,7 @@ export default async function handler(req, res) {
       POLL_OPTIONS.forEach((id) => {
         votes[id] = Number(raw?.[id]) || 0;
       });
+      res.setHeader("Cache-Control", "public, s-maxage=5, stale-while-revalidate=10");
       return res.status(200).json({ votes });
     } catch (err) {
       console.error("GET /api/poll error:", err);
