@@ -461,7 +461,7 @@ html,body{margin:0;padding:0;height:100%;background:linear-gradient(155deg,#160a
 .fmk-banner{display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;aspect-ratio:4/3}
 .fmk-banner .team-bg{position:absolute;inset:0;opacity:.85}
 .fmk-banner .fmk-num{position:absolute;font-size:clamp(4rem,12vw,7rem);font-weight:700;color:rgba(255,255,255,.18);line-height:1;transition:opacity .4s;z-index:1}
-.fmk-banner .driver-photo{position:relative;z-index:2;width:100%;display:block;object-fit:cover;object-position:center top;transition:opacity .5s;filter:drop-shadow(0 6px 20px rgba(0,0,0,.5))}
+.fmk-banner .driver-photo{position:relative;z-index:2;width:100%;display:block;object-fit:cover;object-position:center 20%;transition:opacity .5s;filter:drop-shadow(0 6px 20px rgba(0,0,0,.5))}
 .fmk-banner .helm-emoji{position:absolute;font-size:clamp(2.5rem,7vw,3.5rem);bottom:10%;right:8%;filter:drop-shadow(0 4px 12px rgba(0,0,0,.3));transition:opacity .4s;z-index:3}
 .fmk-info{padding:.7rem 1.2rem .6rem;background:linear-gradient(to top,rgba(25,12,22,.98) 55%,rgba(25,12,22,.82))}
 .driver-name{font-size:clamp(1.2rem,3.5vw,1.5rem);font-weight:700;color:#fff;line-height:1.15;margin-bottom:.1rem}
