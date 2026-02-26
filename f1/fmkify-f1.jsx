@@ -376,9 +376,12 @@ function RankingsView({onBack,globalData}) {
 function Footer() {
   return (
     <div className="fmk-footer">
-      <a href="/" className="footer-link">FMKify</a>
-      <span className="footer-sep">·</span>
-      <a href="mailto:admin@fmkify.com" className="footer-link">admin@fmkify.com</a>
+      <div className="footer-row">
+        <a href="/" className="footer-link">FMKify</a>
+        <span className="footer-sep">·</span>
+        <a href="mailto:admin@fmkify.com" className="footer-link">admin@fmkify.com</a>
+      </div>
+      <a href="/" className="footer-cta">🗳️ Want NBA, WWE, or Love Island next? Vote on the homepage →</a>
     </div>
   );
 }
@@ -560,10 +563,13 @@ html,body{margin:0;padding:0;height:100%;background:linear-gradient(155deg,#160a
 .back-bar{padding:.5rem 1rem 1.25rem;flex-shrink:0}
 .btn-back{font-family:inherit;width:100%;font-size:1rem;font-weight:700;padding:.8rem;border:1.5px solid rgba(255,255,255,.1);border-radius:3rem;cursor:pointer;background:rgba(255,255,255,.05);color:#fff;transition:background .2s,transform .2s}
 .btn-back:hover{background:rgba(255,255,255,.1)}
-.fmk-footer{text-align:center;padding:.6rem 1rem;font-size:.75rem;color:rgba(255,255,255,.2);font-weight:600;flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:.4rem}
+.fmk-footer{text-align:center;padding:.6rem 1rem;font-size:.75rem;color:rgba(255,255,255,.2);font-weight:600;flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:.3rem}
+.footer-row{display:flex;align-items:center;gap:.4rem}
 .footer-link{color:rgba(255,255,255,.25);text-decoration:none;transition:color .2s}
 .footer-link:hover{color:rgba(255,255,255,.5)}
 .footer-sep{color:rgba(255,255,255,.12)}
+.footer-cta{font-size:.72rem;color:rgba(219,112,147,.5);text-decoration:none;transition:color .2s}
+.footer-cta:hover{color:rgba(219,112,147,.8)}
 @media(max-width:768px){
   .fmk-app{max-width:100%}.fmk-badge-bar{display:none!important}
   .fmk-cards-grid{flex-direction:column;gap:.45rem;padding:.3rem 1rem;justify-content:flex-start}
