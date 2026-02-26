@@ -1,4 +1,4 @@
-import { redis, cors, errorJson } from "../_lib.js";
+import { redis, cors, errorJson } from "./_lib.js";
 
 const POLL_OPTIONS = ["nba", "wwe", "love-island", "bridgerton", "the-office"];
 const POLL_KEY = "poll:next-game";
