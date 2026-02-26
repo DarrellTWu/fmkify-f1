@@ -32,7 +32,7 @@ const TC = {
 };
 
 // To flip to self-hosted images later, change F1_CDN and update paths in DRIVER_PHOTOS.
-const F1_CDN = "https://media.formula1.com/image/upload/c_thumb,g_face,w_400,h_500/q_auto/d_common:f1:2026:fallback:driver:2026fallbackdriverright.webp/v1740000000/common/f1/2026";
+const F1_CDN = "https://media.formula1.com/image/upload/c_fill,g_face:auto,w_400,h_600/q_auto/d_common:f1:2026:fallback:driver:2026fallbackdriverright.webp/v1740000000/common/f1/2026";
 const DRIVER_PHOTOS = {
   1:`${F1_CDN}/mclaren/lannor01/2026mclarenlannor01right.webp`,
   2:`${F1_CDN}/mclaren/oscpia01/2026mclarenoscpia01right.webp`,
@@ -442,7 +442,7 @@ html,body{margin:0;padding:0;height:100%;background:linear-gradient(155deg,#160a
 .btn-icon:hover{background:rgba(255,255,255,.15);transform:scale(1.04)}
 .btn-icon .btn-label{letter-spacing:.02em}
 .fmk-instruct{text-align:center;padding:.1rem 1.25rem .4rem;font-size:.85rem;color:rgba(255,255,255,.4);flex-shrink:0}
-.fmk-cards-grid{flex:1;display:flex;gap:1rem;padding:0.25rem 1.5rem;justify-content:center;align-items:stretch;min-height:0}
+.fmk-cards-grid{flex:1;display:flex;gap:1rem;padding:0.25rem 1.5rem;justify-content:center;align-items:center;min-height:0}
 .fmk-card{flex:1;max-width:320px;border-radius:var(--radius);overflow:hidden;background:#251520;border:2px solid rgba(255,255,255,.07);box-shadow:0 8px 40px rgba(0,0,0,.35);display:flex;flex-direction:column;position:relative;transition:transform .4s cubic-bezier(.4,0,.2,1),box-shadow .4s,border-color .4s,filter .4s;will-change:transform}
 .fmk-card.dealing{opacity:0;transform:translateY(60px) rotate(var(--rot,3deg));animation:fmk-deal .55s cubic-bezier(.34,1.56,.64,1) forwards;animation-delay:var(--deal-delay,0s)}
 .fmk-card.sel-f{border-color:var(--f-color);box-shadow:0 0 40px var(--f-glow),0 8px 40px rgba(0,0,0,.3);transform:rotate(-1.5deg) scale(1.02)}
@@ -458,10 +458,10 @@ html,body{margin:0;padding:0;height:100%;background:linear-gradient(155deg,#160a
 .fmk-stamp.k-stamp{color:var(--k-color);border-color:var(--k-color);background:rgba(170,0,255,.12)}
 .stamp-txt{font-size:2.2rem}
 .fmk-shimmer{position:absolute;inset:0;z-index:5;pointer-events:none;border-radius:var(--radius);background:linear-gradient(120deg,transparent 30%,rgba(219,112,147,.06) 50%,transparent 70%);animation:fmk-shimmer 2s ease-in-out infinite}
-.fmk-banner{display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;min-height:120px;max-height:280px;flex:1 1 0}
+.fmk-banner{display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
 .fmk-banner .team-bg{position:absolute;inset:0;opacity:.85}
 .fmk-banner .fmk-num{position:absolute;font-size:clamp(4rem,12vw,7rem);font-weight:700;color:rgba(255,255,255,.18);line-height:1;transition:opacity .4s;z-index:1}
-.fmk-banner .driver-photo{position:relative;z-index:2;width:85%;max-height:100%;object-fit:cover;object-position:center top;transition:opacity .5s;filter:drop-shadow(0 6px 20px rgba(0,0,0,.5))}
+.fmk-banner .driver-photo{position:relative;z-index:2;width:100%;display:block;object-fit:cover;object-position:center top;transition:opacity .5s;filter:drop-shadow(0 6px 20px rgba(0,0,0,.5))}
 .fmk-banner .helm-emoji{position:absolute;font-size:clamp(2.5rem,7vw,3.5rem);bottom:10%;right:8%;filter:drop-shadow(0 4px 12px rgba(0,0,0,.3));transition:opacity .4s;z-index:3}
 .fmk-info{padding:.7rem 1.2rem .6rem;background:linear-gradient(to top,rgba(25,12,22,.98) 55%,rgba(25,12,22,.82))}
 .driver-name{font-size:clamp(1.2rem,3.5vw,1.5rem);font-weight:700;color:#fff;line-height:1.15;margin-bottom:.1rem}
