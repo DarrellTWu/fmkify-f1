@@ -32,7 +32,7 @@ const TC = {
 };
 
 // To flip to self-hosted images later, change F1_CDN and update paths in DRIVER_PHOTOS.
-const F1_CDN = "https://media.formula1.com/image/upload/c_fill,g_face:auto,w_400,h_600/q_auto/d_common:f1:2026:fallback:driver:2026fallbackdriverright.webp/v1740000000/common/f1/2026";
+const F1_CDN = "https://media.formula1.com/image/upload/c_fill,g_face,w_480,h_360,y_-30/q_auto/d_common:f1:2026:fallback:driver:2026fallbackdriverright.webp/v1740000000/common/f1/2026";
 const DRIVER_PHOTOS = {
   1:`${F1_CDN}/mclaren/lannor01/2026mclarenlannor01right.webp`,
   2:`${F1_CDN}/mclaren/oscpia01/2026mclarenoscpia01right.webp`,
@@ -458,10 +458,10 @@ html,body{margin:0;padding:0;height:100%;background:linear-gradient(155deg,#160a
 .fmk-stamp.k-stamp{color:var(--k-color);border-color:var(--k-color);background:rgba(170,0,255,.12)}
 .stamp-txt{font-size:2.2rem}
 .fmk-shimmer{position:absolute;inset:0;z-index:5;pointer-events:none;border-radius:var(--radius);background:linear-gradient(120deg,transparent 30%,rgba(219,112,147,.06) 50%,transparent 70%);animation:fmk-shimmer 2s ease-in-out infinite}
-.fmk-banner{display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;aspect-ratio:4/3}
+.fmk-banner{display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
 .fmk-banner .team-bg{position:absolute;inset:0;opacity:.85}
 .fmk-banner .fmk-num{position:absolute;font-size:clamp(4rem,12vw,7rem);font-weight:700;color:rgba(255,255,255,.18);line-height:1;transition:opacity .4s;z-index:1}
-.fmk-banner .driver-photo{position:relative;z-index:2;width:100%;display:block;object-fit:cover;object-position:center 20%;transition:opacity .5s;filter:drop-shadow(0 6px 20px rgba(0,0,0,.5))}
+.fmk-banner .driver-photo{position:relative;z-index:2;width:100%;display:block;transition:opacity .5s;filter:drop-shadow(0 6px 20px rgba(0,0,0,.5))}
 .fmk-banner .helm-emoji{position:absolute;font-size:clamp(2.5rem,7vw,3.5rem);bottom:10%;right:8%;filter:drop-shadow(0 4px 12px rgba(0,0,0,.3));transition:opacity .4s;z-index:3}
 .fmk-info{padding:.7rem 1.2rem .6rem;background:linear-gradient(to top,rgba(25,12,22,.98) 55%,rgba(25,12,22,.82))}
 .driver-name{font-size:clamp(1.2rem,3.5vw,1.5rem);font-weight:700;color:#fff;line-height:1.15;margin-bottom:.1rem}
