@@ -1,4 +1,4 @@
-import { redis, cors, errorJson, DRIVER_COUNT } from "../_lib.js";
+import { cors, errorJson, readTallies } from "../_lib.js";
 
 export default async function handler(req, res) {
   if (cors(req, res)) return;
@@ -7,27 +7,13 @@ export default async function handler(req, res) {
   }
 
   try {
-    const pipe = redis.pipeline();
-    for (let i = 1; i <= DRIVER_COUNT; i++) pipe.hgetall(`driver:${i}`);
-    pipe.get("totalVotes");
-    const results = await pipe.exec();
-
-    const tallies = {};
-    for (let i = 0; i < DRIVER_COUNT; i++) {
-      const raw = results[i];
-      tallies[i + 1] = {
-        f: Number(raw?.f) || 0,
-        m: Number(raw?.m) || 0,
-        k: Number(raw?.k) || 0,
-      };
-    }
-    const totalVotes = Number(results[DRIVER_COUNT]) || 0;
+    const data = await readTallies(); // 1 Redis command
 
     // Light caching — 5 s at the edge, always revalidate
     res.setHeader("Cache-Control", "public, s-maxage=5, stale-while-revalidate=10");
-    return res.status(200).json({ tallies, totalVotes });
+    return res.status(200).json(data);
   } catch (err) {
-    console.error("GET /api/tallies error:", err);
+    console.error("GET /api/f1/tallies error:", err);
     return errorJson(res, 500, "internal", "Could not retrieve tallies.");
   }
 }

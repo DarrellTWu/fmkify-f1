@@ -18,30 +18,30 @@ export default async function handler(req, res) {
       "unknown";
 
     const ipKey = `ip-limit:${ip}`;
-    const exists = await redis.set(ipKey, 1, {
+    const allowed = await redis.set(ipKey, 1, {       // 1 command
       nx: true,
       ex: TOKEN_RATE_LIMIT_TTL,
     });
 
-    if (exists === null) {
-      // Key already existed → rate limited
+    if (allowed === null) {
       return errorJson(
         res, 429, "token_rate_limit",
         "Please wait a moment before requesting a new session."
       );
     }
 
-    // ── Generate token ──────────────────────────────────────────
-    const token = crypto.randomBytes(16).toString("hex"); // 32-char hex
-
-    // Session hash: lastVote (epoch ms), votes (counter)
+    // ── Generate token + create session (pipelined) ─────────────
+    const token = crypto.randomBytes(16).toString("hex");
     const sessionKey = `session:${token}`;
-    await redis.hset(sessionKey, { lastVote: 0, votes: 0 });
-    await redis.expire(sessionKey, SESSION_TTL);
+
+    const pipe = redis.pipeline();
+    pipe.hset(sessionKey, { lastVote: 0, votes: 0 });
+    pipe.expire(sessionKey, SESSION_TTL);
+    await pipe.exec();                                // 1 pipeline call (2 commands)
 
     return res.status(200).json({ token });
   } catch (err) {
-    console.error("GET /api/token error:", err);
+    console.error("GET /api/f1/token error:", err);
     return errorJson(res, 500, "internal", "Could not issue session token.");
   }
 }

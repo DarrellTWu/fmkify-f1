@@ -1,6 +1,7 @@
 import {
   redis, cors, errorJson,
   DRIVER_COUNT, COOLDOWN_MS, SESSION_BUDGET, SESSION_TTL,
+  readTallies, writeTallies,
 } from "../_lib.js";
 
 // ---------------------------------------------------------------------------
@@ -13,28 +14,6 @@ function validatePayload(body) {
   if (ids.some((id) => !Number.isInteger(id) || id < 1 || id > DRIVER_COUNT)) return false;
   if (new Set(ids).size !== 3) return false;
   return ids; // [fId, mId, kId]
-}
-
-// ---------------------------------------------------------------------------
-// Assemble full tallies object (same helper used by /api/tallies)
-// ---------------------------------------------------------------------------
-async function assembleTallies() {
-  const pipe = redis.pipeline();
-  for (let i = 1; i <= DRIVER_COUNT; i++) pipe.hgetall(`driver:${i}`);
-  pipe.get("totalVotes");
-  const results = await pipe.exec();
-
-  const tallies = {};
-  for (let i = 0; i < DRIVER_COUNT; i++) {
-    const raw = results[i]; // null or { f, m, k }
-    tallies[i + 1] = {
-      f: Number(raw?.f) || 0,
-      m: Number(raw?.m) || 0,
-      k: Number(raw?.k) || 0,
-    };
-  }
-  const totalVotes = Number(results[DRIVER_COUNT]) || 0;
-  return { tallies, totalVotes };
 }
 
 // ---------------------------------------------------------------------------
@@ -62,7 +41,7 @@ export default async function handler(req, res) {
     }
 
     const sessionKey = `session:${token}`;
-    const session = await redis.hgetall(sessionKey);
+    const session = await redis.hgetall(sessionKey);            // 1 command
     if (!session || Object.keys(session).length === 0) {
       return errorJson(res, 401, "invalid_token", "Session expired or not found. Please refresh the page.");
     }
@@ -83,22 +62,29 @@ export default async function handler(req, res) {
       );
     }
 
-    // ── Atomic tally increments (pipelined) ─────────────────────
+    // ── Read-modify-write tallies (2 commands) ──────────────────
+    const data = await readTallies();                           // 1 command
+
+    // Apply vote in memory
+    if (!data.tallies[fId]) data.tallies[fId] = { f: 0, m: 0, k: 0 };
+    if (!data.tallies[mId]) data.tallies[mId] = { f: 0, m: 0, k: 0 };
+    if (!data.tallies[kId]) data.tallies[kId] = { f: 0, m: 0, k: 0 };
+    data.tallies[fId].f += 1;
+    data.tallies[mId].m += 1;
+    data.tallies[kId].k += 1;
+    data.totalVotes += 1;
+
+    // Write tallies + update session in a pipeline (3 commands)
     const pipe = redis.pipeline();
-    pipe.hincrby(`driver:${fId}`, "f", 1);
-    pipe.hincrby(`driver:${mId}`, "m", 1);
-    pipe.hincrby(`driver:${kId}`, "k", 1);
-    pipe.incr("totalVotes");
-    // Update session: bump lastVote timestamp + vote counter
+    pipe.set("f1:tallies", JSON.stringify(data));
     pipe.hset(sessionKey, { lastVote: now, votes: votes + 1 });
-    pipe.expire(sessionKey, SESSION_TTL); // refresh TTL on activity
+    pipe.expire(sessionKey, SESSION_TTL);
     await pipe.exec();
 
-    // ── Return updated tallies ──────────────────────────────────
-    const data = await assembleTallies();
+    // ── Return updated tallies (no extra read needed) ───────────
     return res.status(200).json(data);
   } catch (err) {
-    console.error("POST /api/vote error:", err);
+    console.error("POST /api/f1/vote error:", err);
     return errorJson(res, 500, "internal", "Could not process vote.");
   }
 }
