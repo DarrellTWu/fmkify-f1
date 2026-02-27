@@ -286,7 +286,7 @@ function GameView({onShowRankings,globalData,onVote}) {
   const onTouchMove=useCallback((e)=>{const g=ghostRef.current;if(!g)return;e.preventDefault();const t=e.touches[0];setGhostDrag({choice:g.choice,x:t.clientX,y:t.clientY});let hov=null;trio.forEach(d=>{const el=cardRefs.current[d.id];if(el){const r=el.getBoundingClientRect();if(t.clientX>=r.left&&t.clientX<=r.right&&t.clientY>=r.top&&t.clientY<=r.bottom)hov=d.id;}});setDropHover(hov);},[trio]);
   const onTouchEnd=useCallback(()=>{const g=ghostRef.current;if(!g)return;if(dropHover)assign(dropHover,g.choice);setGhostDrag(null);setDropHover(null);},[dropHover,assign]);
 
-  return (
+  return (<>
     <div className="fmk-app">
       <div className="fmk-topbar">
         <div className="fmk-logo">🏎️ <span className="accent">FMKify</span></div>
@@ -325,19 +325,6 @@ function GameView({onShowRankings,globalData,onVote}) {
 
       {!isMobile && <Footer/>}
 
-      {isMobile && <div className="fmk-sticky">
-        <div className="sticky-slots">
-          {[{c:'f',e:'🔥',l:'F'},{c:'m',e:'💍',l:'M'},{c:'k',e:'💀',l:'K'}].map(s=>{
-            const name=nameForChoice(s.c);
-            return <div key={s.c} className={`sticky-slot${name?' filled':''}`} onClick={()=>{if(name)unassign(s.c);}} style={{cursor:name?'pointer':'default'}}>
-              <span>{s.e}</span><span style={{fontWeight:700,fontSize:'.75rem'}}>{s.l}</span><span>= </span>
-              {name?<span className="slot-name" key={name}>{name}</span>:<span style={{opacity:.4}}>?</span>}
-            </div>;
-          })}
-        </div>
-        <button className={`sticky-submit${done?' ready pulse-glow':''}`} onClick={submit}>✨ Submit Vote ✨</button>
-      </div>}
-
       {showConf && <div className="fmk-confetti-overlay"><div className="confetti-card">
         <div className="big-emoji">🎉</div><div className="conf-msg">Vote Recorded!</div><div className="round-text">Next round loading...</div>
       </div></div>}
@@ -364,7 +351,20 @@ function GameView({onShowRankings,globalData,onVote}) {
         {ghostDrag.choice==='f'?'🔥':ghostDrag.choice==='m'?'💍':'💀'}
       </div>}
     </div>
-  );
+
+    {isMobile && <div className="fmk-sticky">
+      <div className="sticky-slots">
+        {[{c:'f',e:'🔥',l:'F'},{c:'m',e:'💍',l:'M'},{c:'k',e:'💀',l:'K'}].map(s=>{
+          const name=nameForChoice(s.c);
+          return <div key={s.c} className={`sticky-slot${name?' filled':''}`} onClick={()=>{if(name)unassign(s.c);}} style={{cursor:name?'pointer':'default'}}>
+            <span>{s.e}</span><span style={{fontWeight:700,fontSize:'.75rem'}}>{s.l}</span><span>= </span>
+            {name?<span className="slot-name" key={name}>{name}</span>:<span style={{opacity:.4}}>?</span>}
+          </div>;
+        })}
+      </div>
+      <button className={`sticky-submit${done?' ready pulse-glow':''}`} onClick={submit}>✨ Submit Vote ✨</button>
+    </div>}
+  </>);
 }
 
 // ── Rankings View ───────────────────────────────────────────────
@@ -478,13 +478,13 @@ export default function App() {
 }
 
 const CSS = `
-html,body{margin:0;padding:0;height:100%;background:linear-gradient(155deg,#160a14 0%,#261222 25%,#2e1628 50%,#180c16 100%)}
+html,body{margin:0;padding:0;min-height:100%;background:linear-gradient(155deg,#160a14 0%,#261222 25%,#2e1628 50%,#180c16 100%)}
 :root{--pink:#DB7093;--orange:#E8A0BF;--yellow:#FFB696;--f-color:#ff1744;--f-bg:linear-gradient(135deg,#ff5252,#ff1744);--f-glow:rgba(255,23,68,.45);--m-color:#2979ff;--m-bg:linear-gradient(135deg,#448aff,#2979ff);--m-glow:rgba(41,121,255,.45);--k-color:#aa00ff;--k-bg:linear-gradient(135deg,#e040fb,#aa00ff);--k-glow:rgba(170,0,255,.45);--radius:1.5rem;--radius-sm:1rem}
 .fmk-blob{position:fixed;border-radius:50%;pointer-events:none;z-index:0;filter:blur(80px)}
 .fmk-blob-1{width:500px;height:500px;background:radial-gradient(circle,rgba(219,112,147,.25),transparent 70%);top:-15%;right:-10%;animation:fmk-drift 18s ease-in-out infinite alternate}
 .fmk-blob-2{width:400px;height:400px;background:radial-gradient(circle,rgba(255,182,150,.15),transparent 70%);bottom:-10%;left:-8%;animation:fmk-drift 14s ease-in-out infinite alternate-reverse}
-.fmk-root{position:relative;z-index:1;height:100%;font-family:'Fredoka','Segoe UI',system-ui,sans-serif;color:#e0e0e0;-webkit-tap-highlight-color:transparent;background:linear-gradient(155deg,#160a14 0%,#261222 25%,#2e1628 50%,#180c16 100%)}
-.fmk-app{display:flex;flex-direction:column;height:100%;max-width:1100px;margin:0 auto;overflow:hidden}
+.fmk-root{position:relative;z-index:1;min-height:100%;font-family:'Fredoka','Segoe UI',system-ui,sans-serif;color:#e0e0e0;-webkit-tap-highlight-color:transparent;background:linear-gradient(155deg,#160a14 0%,#261222 25%,#2e1628 50%,#180c16 100%)}
+.fmk-app{display:flex;flex-direction:column;height:100vh;max-width:1100px;margin:0 auto;overflow:hidden}
 .fmk-topbar{display:flex;align-items:center;justify-content:space-between;padding:.75rem 1.25rem;flex-shrink:0}
 .fmk-logo{font-size:1.4rem;font-weight:700;color:#fff;letter-spacing:-.5px}
 .fmk-logo .accent{background:linear-gradient(135deg,var(--pink),var(--orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
@@ -601,7 +601,7 @@ html,body{margin:0;padding:0;height:100%;background:linear-gradient(155deg,#160a
 .footer-cta{font-size:.72rem;color:rgba(219,112,147,.5);text-decoration:none;transition:color .2s}
 .footer-cta:hover{color:rgba(219,112,147,.8)}
 @media(max-width:768px){
-  .fmk-app{max-width:100%;overflow-y:auto}.fmk-badge-bar{display:none!important}
+  .fmk-app{max-width:100%;height:auto;min-height:100%;overflow:visible}.fmk-badge-bar{display:none!important}
   .fmk-cards-grid{flex-direction:column;gap:.6rem;padding:.3rem 1rem;justify-content:flex-start;align-items:stretch;flex:none}
   .fmk-card{flex:0 0 auto;flex-direction:column;max-width:100%;border-radius:var(--radius-sm);min-height:0}
   .fmk-card .fmk-banner{width:100%;min-height:unset;aspect-ratio:4/3}
