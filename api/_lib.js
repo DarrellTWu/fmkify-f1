@@ -40,7 +40,7 @@ export const DRIVER_COUNT = 22;
 export const SESSION_TTL = 86400;       // 24 h
 export const COOLDOWN_MS = 1000;        // 1 s between votes
 export const SESSION_BUDGET = 900;      // max votes per session
-export const TOKEN_RATE_LIMIT_TTL = 30; // 30 s between new tokens per IP
+export const TOKEN_RATE_LIMIT_TTL = 5;  // 5 s between new tokens per IP
 export const TALLIES_KEY = "f1:tallies"; // single JSON key for all vote data
 
 // ---------------------------------------------------------------------------
