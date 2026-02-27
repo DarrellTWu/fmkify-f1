@@ -449,9 +449,8 @@ export default function App() {
   },[]);
 
   useEffect(()=>{(async()=>{
-    // Fetch session token and initial tallies in parallel
-    const [tok, d] = await Promise.all([fetchToken(), loadGlobal()]);
-    tokenRef.current = tok;
+    // Only fetch tallies on mount — token is lazy-fetched on first vote
+    const d = await loadGlobal();
     setGlobalData(d || emptyTallies());
     setLoading(false);
   })();},[]);
@@ -459,8 +458,14 @@ export default function App() {
   useEffect(()=>{if(view==="rankings")loadGlobal().then(d=>{if(d)setGlobalData(d);});},[view]);
 
   const handleVote=useCallback(async(vote)=>{
+    // Lazy-fetch token on first vote — saves 2-3 Redis commands for non-voters
+    if (!tokenRef.current) {
+      tokenRef.current = await fetchToken();
+    }
     const result = await recordVote(vote, tokenRef.current);
     if (result.data) setGlobalData(result.data);
+    // Clear cached token on auth failure so next attempt fetches a fresh one
+    if (result.error?.error === "invalid_token") tokenRef.current = null;
     // Return the full result so GameView submit can handle errors
     return result;
   },[]);
