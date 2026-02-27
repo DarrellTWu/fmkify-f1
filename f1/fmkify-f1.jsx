@@ -431,6 +431,7 @@ export default function App() {
   const [globalData,setGlobalData]=useState(null);
   const [loading,setLoading]=useState(true);
   const tokenRef=useRef(null);
+  const lastFetchRef=useRef(0);
 
   // Sync browser back/forward buttons with view state
   useEffect(()=>{
@@ -452,10 +453,16 @@ export default function App() {
     // Only fetch tallies on mount — token is lazy-fetched on first vote
     const d = await loadGlobal();
     setGlobalData(d || emptyTallies());
+    lastFetchRef.current = Date.now();
     setLoading(false);
   })();},[]);
 
-  useEffect(()=>{if(view==="rankings")loadGlobal().then(d=>{if(d)setGlobalData(d);});},[view]);
+  // Re-fetch tallies when switching to rankings, but skip if data is fresh (<30s)
+  useEffect(()=>{
+    if (view==="rankings" && Date.now() - lastFetchRef.current > 30000) {
+      loadGlobal().then(d=>{if(d){setGlobalData(d);lastFetchRef.current=Date.now();}});
+    }
+  },[view]);
 
   const handleVote=useCallback(async(vote)=>{
     // Lazy-fetch token on first vote — saves 2-3 Redis commands for non-voters
@@ -463,7 +470,7 @@ export default function App() {
       tokenRef.current = await fetchToken();
     }
     const result = await recordVote(vote, tokenRef.current);
-    if (result.data) setGlobalData(result.data);
+    if (result.data) { setGlobalData(result.data); lastFetchRef.current = Date.now(); }
     // Clear cached token on auth failure so next attempt fetches a fresh one
     if (result.error?.error === "invalid_token") tokenRef.current = null;
     // Return the full result so GameView submit can handle errors
