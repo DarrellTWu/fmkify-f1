@@ -60,6 +60,32 @@ const DRIVER_PHOTOS = {
 
 const HELMS = ["🏎️","🏁","⚡","🌟","💨","🏆","🎯","🚀","🦊","🔥","🌪️"];
 
+// ── Vote quips ─────────────────────────────────────────────────
+const QUIPS = {
+  1:  { f:"Certified Twitch chat behavior",                      m:"Finally, someone who gets your gaming addiction",        k:"The streamers are typing..." },
+  2:  { f:"Ice cold taste",                                       m:"Prepare for deadpan dinner conversation forever",       k:"Australia will remember this" },
+  3:  { f:"Il Predestinato to break your heart",                  m:"Hope you like piano serenades and pain",                k:"Ferrari's strategists already did this" },
+  4:  { f:"Still got it ✨",                                      m:"Get ready for couples therapy and Met Gala fits",       k:"Bono, my marriage is gone" },
+  5:  { f:"Simply lovely behavior",                               m:"Hope you enjoy sim racing dates",                       k:"Inchident? I think so." },
+  6:  { f:"Rookie of the year... in your heart",                  m:"Betting on future potential, bold",                     k:"Red Bull already has him on thin ice" },
+  7:  { f:"PowerPoint presentation of a man",                     m:"Your parents would be SO proud",                        k:"The GPDA will hear about this" },
+  8:  { f:"FBI OPEN UP— wait he's 18 now, carry on",             m:"You know he was born in 2007 right?",                   k:"Toto is watching 👀" },
+  9:  { f:"GP2 engine? GP2 standards.",                           m:"All the time you have to leave the space... for commitment", k:"Survived McLaren-Honda, can't survive you" },
+  10: { f:"Interesting financial strategy",                       m:"Congrats on marrying into Aston Martin ownership",      k:"His dad owns the team, you can't fire him" },
+  11: { f:"Yuki is typing...",                                    m:"Hope you like French poetry and AlphaTauri drip",       k:"Red Bull sends their regards" },
+  12: { f:"Argentina's finest export",                            m:"Williams already called dibs",                          k:"You monster, he just got here!" },
+  13: { f:"Best post-race debrief of your life",                  m:"The stability you've been looking for",                 k:"His army of pets will avenge him" },
+  14: { f:"Smooth operator indeed",                               m:"Prepare for golf dates and perfect hair genes",         k:"Ferrari tried this, it didn't work out" },
+  15: { f:"He'll fight Pérez AND for you",                        m:"Aggressive on track, committed off track",              k:"Red Bull demotion any% speedrun" },
+  16: { f:"The only rookie on the grid gets... this treatment",   m:"Long-term investment strategy",                         k:"He hasn't even finished a season yet, chill" },
+  17: { f:"Alpine regrets unlocked",                              m:"Pierre Gasly has left the chat",                        k:"Liked by Pierre Gasly" },
+  18: { f:"Ferrari Academy's pride and joy",                      m:"Investing early, smart",                                k:"Give the kid a chance!" },
+  19: { f:"Dad energy off the charts",                            m:"Finally, a podium (at the wedding)",                    k:"First podium in 15 years and THIS is the thanks?" },
+  20: { f:"Brazilian pipeline continues",                         m:"Sauber/Audi believer detected",                         k:"Let him cook first!" },
+  21: { f:"Traditions (ass pic in the DMs incoming)",              m:"To whom it may concern... yes",                         k:"James, this is unacceptable" },
+  22: { f:"Redemption arc begins now",                            m:"Red Bull wishes they'd committed like this",            k:"You've made an enemy of Mexico" },
+};
+
 // ── Storage ─────────────────────────────────────────────────────
 // API_BASE: set to "/api/f1" for the /f1 subpath deployment,
 // or to a full URL (e.g. "https://www.fmkify.com/api/f1") during local dev.
@@ -216,9 +242,17 @@ function GameView({onShowRankings,globalData,onVote}) {
   const [slowdown,setSlowdown]=useState(null); // friendly message from 429 budget_exceeded
   const [activeBadge,setActiveBadge]=useState(null); // tap-to-assign: which badge is "held"
   const [showMilestone,setShowMilestone]=useState(false); // one-time prompt at 10 rounds
+  const [voteQuips,setVoteQuips]=useState(null); // [{name,choice,emoji,quip},...] shown in confetti overlay
   const milestoneShownRef=useRef(false); // ensures milestone only fires once per session
   const busyRef=useRef(false); const cardRefs=useRef({}); const ghostRef=useRef(null);
+  const confTimerRef=useRef(null);
   const isMobile=useIsMobile();
+
+  const dismissConf=useCallback(()=>{
+    if(!showConf)return;
+    if(confTimerRef.current){clearTimeout(confTimerRef.current);confTimerRef.current=null;}
+    setShowConf(false);setVoteQuips(null);setTrio(randomTrio());setSels({});busyRef.current=false;
+  },[showConf]);
 
   useEffect(()=>{setDealing(true);const t=setTimeout(()=>setDealing(false),700);return()=>clearTimeout(t);},[trio]);
   useEffect(()=>{ghostRef.current=ghostDrag;},[ghostDrag]);
@@ -265,17 +299,25 @@ function GameView({onShowRankings,globalData,onVote}) {
 
     // Success path — celebrate
     clearTimeout(safetyTimer);
+    // Build quips from current selections before clearing
+    const quips = Object.entries(sels).map(([id,ch])=>{
+      const d = trio.find(dr=>dr.id===parseInt(id));
+      const q = QUIPS[d.id]?.[ch] || "";
+      const emoji = ch==='f'?'🔥':ch==='m'?'💍':'💀';
+      return { name:d.name, choice:ch, emoji, quip:q };
+    });
+    setVoteQuips(quips);
     const nextRound = round + 1;
     if (nextRound === 11 && !milestoneShownRef.current) {
-      // Milestone: show rankings prompt once after 10th vote
       milestoneShownRef.current = true;
       setShowMilestone(true);
       spawnConfetti();
       setRound(nextRound);
       busyRef.current = false;
     } else {
-      setShowConf(true); spawnConfetti();
-      setTimeout(()=>{setShowConf(false);setTrio(randomTrio());setSels({});setRound(nextRound);busyRef.current=false;},1200);
+      setShowConf(true); spawnConfetti(); setRound(nextRound);
+      const confTimer = setTimeout(()=>{setShowConf(false);setVoteQuips(null);setTrio(randomTrio());setSels({});busyRef.current=false;confTimerRef.current=null;},4000);
+      confTimerRef.current = confTimer;
     }
   },[allDone,sels,onVote,round]);
 
@@ -328,8 +370,18 @@ function GameView({onShowRankings,globalData,onVote}) {
 
       {!isMobile && <Footer/>}
 
-      {showConf && <div className="fmk-confetti-overlay"><div className="confetti-card">
-        <div className="big-emoji">🎉</div><div className="conf-msg">Vote Recorded!</div><div className="round-text">Next round loading...</div>
+      {showConf && voteQuips && <div className="fmk-confetti-overlay" style={{pointerEvents:'auto',cursor:'pointer'}} onClick={dismissConf}><div className="confetti-card" style={{maxWidth:'360px'}}>
+        <div className="big-emoji">🎉</div><div className="conf-msg">Vote Recorded!</div>
+        <div className="quip-list">
+          {voteQuips.map((q,i)=><div key={i} className={`quip-row quip-${q.choice}`}>
+            <span className="quip-emoji">{q.emoji}</span>
+            <div className="quip-body">
+              <span className="quip-name">{q.name}</span>
+              <span className="quip-text">{q.quip}</span>
+            </div>
+          </div>)}
+        </div>
+        <div className="round-text">Tap anywhere to continue</div>
       </div></div>}
 
       {slowdown && <div className="fmk-confetti-overlay" style={{pointerEvents:'auto'}}>
@@ -663,6 +715,14 @@ html,body{margin:0;padding:0;min-height:100%;background:linear-gradient(155deg,#
 .action-sm:hover{background:rgba(255,255,255,.1);transform:scale(1.05)}.action-sm:active{transform:scale(.95)}
 .fmk-confetti-overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:100;pointer-events:none;background:rgba(0,0,0,.35);animation:fmk-fade .3s}
 .confetti-card{background:rgba(37,21,32,.95);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.1);border-radius:var(--radius);padding:2rem 2.5rem;box-shadow:0 12px 60px rgba(0,0,0,.4);text-align:center;animation:fmk-pop .3s cubic-bezier(.17,.67,.35,1.5)}
+.quip-list{display:flex;flex-direction:column;gap:.5rem;margin:.75rem 0;text-align:left}
+.quip-row{display:flex;align-items:flex-start;gap:.5rem;padding:.5rem .65rem;border-radius:.75rem;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);animation:fmk-pop .3s cubic-bezier(.17,.67,.35,1.5) backwards}
+.quip-row:nth-child(1){animation-delay:.1s}.quip-row:nth-child(2){animation-delay:.25s}.quip-row:nth-child(3){animation-delay:.4s}
+.quip-row.quip-f{border-left:3px solid var(--f-color)}.quip-row.quip-m{border-left:3px solid var(--m-color)}.quip-row.quip-k{border-left:3px solid var(--k-color)}
+.quip-emoji{font-size:1.1rem;flex-shrink:0;margin-top:.05rem}
+.quip-body{display:flex;flex-direction:column;gap:.1rem;min-width:0}
+.quip-name{font-size:.75rem;font-weight:700;color:rgba(255,255,255,.45)}
+.quip-text{font-size:.85rem;font-weight:600;color:rgba(255,255,255,.85);line-height:1.3}
 .big-emoji{font-size:3.5rem;margin-bottom:.5rem}
 .conf-msg{font-size:1.8rem;font-weight:700;background:linear-gradient(135deg,var(--pink),var(--orange),var(--yellow));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .round-text{margin-top:.4rem;font-size:.85rem;color:rgba(255,255,255,.35);font-weight:600}
