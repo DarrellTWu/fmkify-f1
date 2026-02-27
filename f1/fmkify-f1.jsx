@@ -238,6 +238,8 @@ function GameView({onShowRankings,globalData,onVote}) {
 
   const submit=useCallback(async()=>{
     if(!allDone()||busyRef.current)return; busyRef.current=true;
+    // Safety: auto-unlock after 5s in case anything gets stuck
+    const safetyTimer = setTimeout(()=>{busyRef.current=false;},5000);
     const vote={}; Object.keys(sels).forEach(id=>{vote[sels[id]]=parseInt(id);});
     const result = await onVote(vote);
 
@@ -262,6 +264,7 @@ function GameView({onShowRankings,globalData,onVote}) {
     }
 
     // Success path — celebrate
+    clearTimeout(safetyTimer);
     const nextRound = round + 1;
     if (nextRound === 11 && !milestoneShownRef.current) {
       // Milestone: show rankings prompt once after 10th vote
@@ -274,7 +277,7 @@ function GameView({onShowRankings,globalData,onVote}) {
       setShowConf(true); spawnConfetti();
       setTimeout(()=>{setShowConf(false);setTrio(randomTrio());setSels({});setRound(nextRound);busyRef.current=false;},1200);
     }
-  },[allDone,sels,onVote]);
+  },[allDone,sels,onVote,round]);
 
   const shuffle=()=>{if(!busyRef.current){setTrio(randomTrio());setSels({});setActiveBadge(null);}};
   const clearAll=()=>{setSels({});setActiveBadge(null);};
@@ -545,12 +548,12 @@ html,body{margin:0;padding:0;min-height:100%;background:linear-gradient(155deg,#
 .f-ghost{border-color:var(--f-color);background:rgba(255,23,68,.25)}
 .m-ghost{border-color:var(--m-color);background:rgba(41,121,255,.25)}
 .k-ghost{border-color:var(--k-color);background:rgba(170,0,255,.25)}
-.fmk-sticky{position:fixed;bottom:0;left:0;right:0;z-index:50;background:rgba(22,10,20,.75);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid rgba(255,255,255,.08);padding:.5rem 1rem;padding-bottom:calc(.5rem + env(safe-area-inset-bottom,0px));display:none}
+.fmk-sticky{position:fixed;bottom:0;left:0;right:0;z-index:50;background:rgba(22,10,20,.75);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid rgba(255,255,255,.08);padding:.5rem 1rem;padding-bottom:calc(.5rem + env(safe-area-inset-bottom,0px));display:none;touch-action:manipulation}
 .sticky-slots{display:flex;justify-content:center;gap:.8rem;margin-bottom:.4rem}
 .sticky-slot{display:flex;align-items:center;gap:.3rem;font-size:.8rem;font-weight:600;color:rgba(255,255,255,.4);padding:.25rem .6rem;background:rgba(255,255,255,.04);border-radius:.6rem;border:1px solid rgba(255,255,255,.06);min-width:80px;transition:all .3s}
 .sticky-slot.filled{color:#fff;border-color:rgba(255,255,255,.15);background:rgba(255,255,255,.08)}
 .sticky-slot .slot-name{animation:fmk-slotpop .3s cubic-bezier(.17,.67,.35,1.5)}
-.sticky-submit{font-family:inherit;font-size:1rem;font-weight:700;padding:.7rem;border:none;border-radius:3rem;cursor:pointer;background:linear-gradient(135deg,#DB7093,#E8A0BF);color:#fff;box-shadow:0 4px 20px rgba(219,112,147,.35);width:100%;transition:transform .2s,opacity .3s;opacity:0;pointer-events:none;transform:translateY(10px)}
+.sticky-submit{font-family:inherit;font-size:1rem;font-weight:700;padding:.7rem;border:none;border-radius:3rem;cursor:pointer;background:linear-gradient(135deg,#DB7093,#E8A0BF);color:#fff;box-shadow:0 4px 20px rgba(219,112,147,.35);width:100%;transition:transform .2s,opacity .3s;opacity:0;pointer-events:none;transform:translateY(10px);touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .sticky-submit.ready{opacity:1;pointer-events:auto;transform:translateY(0);animation:fmk-wiggle .5s ease .2s}
 .sticky-submit:active{transform:scale(.96)}
 .sticky-submit.pulse-glow{animation:fmk-glow 1.5s ease-in-out infinite}
