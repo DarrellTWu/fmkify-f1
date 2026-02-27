@@ -370,11 +370,49 @@ function GameView({onShowRankings,globalData,onVote}) {
   </>);
 }
 
+// ── Superlatives config ─────────────────────────────────────────
+const SUPERLATIVES = [
+  { key:"fboy",        emoji:"🔥", label:"Biggest F-Boy",    sub:"All heat, no commitment.",               formula:"Highest 🔥 to 💍 ratio" },
+  { key:"husband",     emoji:"💎", label:"Husband Material",  sub:"More rings than flings.",                formula:"Highest 💍 to 🔥 ratio" },
+  { key:"loved",       emoji:"😍", label:"Most Loved",       sub:"Whether it's a fling or forever, they're wanted.", formula:"Highest 🔥+💍 %" },
+  { key:"polarizing",  emoji:"😈", label:"Most Polarizing",  sub:"Nobody can agree on this one.",          formula:"Most even 🔥 💍 💀 split" },
+];
+
+function computeScore(d, key, usePercent) {
+  const total = d.f + d.m + d.k;
+  if (total === 0) return 0;
+  if (key === "f") return usePercent ? d.f / total : d.f;
+  if (key === "m") return usePercent ? d.m / total : d.m;
+  if (key === "k") return usePercent ? d.k / total : d.k;
+  switch(key) {
+    case "fboy":       return d.m > 0 ? d.f / d.m : d.f;
+    case "husband":    return d.f > 0 ? d.m / d.f : d.m;
+    case "loved":      return (d.f + d.m) / total;
+    case "polarizing": { const max = Math.max(d.f, d.m, d.k); return 1 - (max / total); }
+    default: return 0;
+  }
+}
+
+function formatRatio(score, key) {
+  if (key === "loved" || key === "polarizing") return Math.round(score * 100) + "%";
+  return score.toFixed(2);
+}
+
 // ── Rankings View ───────────────────────────────────────────────
 function RankingsView({onBack,globalData}) {
   const [sortBy,setSortBy]=useState("f");
+  const [usePercent,setUsePercent]=useState(false);
   const tallies=globalData?.tallies||{}; const total=globalData?.totalVotes||0;
-  const rankings=DRIVERS.map(d=>{const t=tallies[d.id]||{f:0,m:0,k:0};return{driver:d,f:t.f,m:t.m,k:t.k};}).sort((a,b)=>b[sortBy]-a[sortBy]);
+  const isSuperlative=SUPERLATIVES.some(s=>s.key===sortBy);
+  const activeSuperlative=SUPERLATIVES.find(s=>s.key===sortBy);
+
+  const rankings=DRIVERS.map(d=>{
+    const t=tallies[d.id]||{f:0,m:0,k:0};
+    const row={driver:d,f:t.f,m:t.m,k:t.k};
+    row.score=computeScore(row,sortBy,usePercent);
+    return row;
+  }).sort((a,b)=>b.score-a.score);
+
   const medal=i=>i===0?'🥇':i===1?'🥈':i===2?'🥉':`#${i+1}`;
 
   return (
@@ -384,18 +422,66 @@ function RankingsView({onBack,globalData}) {
         <button className="btn-icon" onClick={onBack}><span>←</span><span className="btn-label">Back</span></button>
       </div>
       <div className="rank-header"><div className="rank-stat">{total.toLocaleString()}</div><div className="rank-stat-label">community votes</div></div>
+
+      {/* Core F/M/K pills */}
       <div className="sort-pills">
-        {[{c:'f',e:'🔥',l:'F'},{c:'m',e:'💍',l:'M'},{c:'k',e:'💀',l:'K'}].map(p=><button key={p.c} className={`pill${sortBy===p.c?` active-${p.c}`:''}`} onClick={()=>setSortBy(p.c)}>{p.e} {p.l}</button>)}
+        {[{c:'f',e:'🔥',l:'F'},{c:'m',e:'💍',l:'M'},{c:'k',e:'💀',l:'K'}].map(p=>
+          <button key={p.c} className={`pill${sortBy===p.c?` active-${p.c}`:''}`} onClick={()=>setSortBy(p.c)}>{p.e} {p.l}</button>
+        )}
       </div>
+
+      {/* Superlative pills */}
+      <div className="super-section">
+        <div className="super-label">Superlatives</div>
+        <div className="super-pills">
+          {SUPERLATIVES.map(s=>
+            <button key={s.key} className={`super-pill${sortBy===s.key?' active':''}`} onClick={()=>setSortBy(s.key)}>
+              <span className="sp-emoji">{s.emoji}</span><span className="sp-label">{s.label}</span>
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Active superlative description */}
+      {activeSuperlative && <div className="mode-desc">
+        <span className="mode-emoji">{activeSuperlative.emoji}</span>
+        <span className="mode-title">{activeSuperlative.label}</span>
+        <span className="mode-sub">{activeSuperlative.sub}</span>
+        <span className="mode-formula">{activeSuperlative.formula}</span>
+      </div>}
+
+      {/* # / % toggle — only for core F/M/K */}
+      {!isSuperlative && <div className="toggle-row">
+        <div className="pct-toggle">
+          <button className={`toggle-btn${!usePercent?' active':''}`} onClick={()=>setUsePercent(false)}># Count</button>
+          <button className={`toggle-btn${usePercent?' active':''}`} onClick={()=>setUsePercent(true)}>% of Total</button>
+        </div>
+      </div>}
+
       <div className="rankings-scroll">
         {total>0?rankings.map((st,i)=>{const tc=TC[st.driver.team]||"#888";return(
           <div key={st.driver.id} className={`rank-card${i<3?' top':''}`}>
             <div className="rank-pos">{medal(i)}</div>
             <div className="r-stripe" style={{background:tc}}/>
             <div className="r-info"><div className="r-name">{st.driver.name}</div><div className="r-team">{st.driver.team}</div></div>
-            <div className="rank-stats">
-              {[{c:'f',v:st.f},{c:'m',v:st.m},{c:'k',v:st.k}].map(s=><span key={s.c} className={`stat-pip ${s.c}c${sortBy===s.c?' hl':''}`}>{s.c==='f'?'🔥':s.c==='m'?'💍':'💀'}{s.v}</span>)}
-            </div>
+            {isSuperlative ? (
+              <div className="rank-stats">
+                <span className="stat-pip ratio-pip">{formatRatio(st.score,sortBy)}</span>
+                <div className="raw-counts">
+                  <span className="mini-stat fc">🔥{st.f}</span>
+                  <span className="mini-stat mc">💍{st.m}</span>
+                  <span className="mini-stat kc">💀{st.k}</span>
+                </div>
+              </div>
+            ) : (
+              <div className="rank-stats">
+                {[{c:'f',v:st.f},{c:'m',v:st.m},{c:'k',v:st.k}].map(s=>{
+                  const dTotal=st.f+st.m+st.k;
+                  const display=usePercent&&dTotal>0?Math.round((s.v/dTotal)*100)+"%":s.v;
+                  return <span key={s.c} className={`stat-pip ${s.c}c${sortBy===s.c?' hl':''}`}>{s.c==='f'?'🔥':s.c==='m'?'💍':'💀'}{display}</span>;
+                })}
+              </div>
+            )}
           </div>);})
         :<div className="empty-msg"><div className="big">🏁</div><div>No votes yet — go play!</div></div>}
       </div>
@@ -606,6 +692,27 @@ html,body{margin:0;padding:0;min-height:100%;background:linear-gradient(155deg,#
 .stat-pip.hl.fc{color:#fff;background:rgba(255,23,68,.35);box-shadow:0 0 14px rgba(255,23,68,.3)}
 .stat-pip.hl.mc{color:#fff;background:rgba(41,121,255,.35);box-shadow:0 0 14px rgba(41,121,255,.3)}
 .stat-pip.hl.kc{color:#fff;background:rgba(170,0,255,.35);box-shadow:0 0 14px rgba(170,0,255,.3)}
+.super-section{padding:.25rem 0;flex-shrink:0}
+.super-label{text-align:center;font-size:.75rem;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;margin-top:.25rem}
+.super-pills{display:flex;flex-wrap:wrap;justify-content:center;gap:.4rem;padding:0 .5rem .5rem}
+.super-pill{font-family:inherit;font-size:.78rem;font-weight:600;padding:.35rem .75rem;border:1.5px solid rgba(255,255,255,.08);border-radius:2rem;cursor:pointer;background:rgba(255,255,255,.03);color:rgba(255,255,255,.4);transition:all .2s;display:flex;align-items:center;gap:.3rem}
+.super-pill:hover{border-color:rgba(255,255,255,.2);color:rgba(255,255,255,.6);background:rgba(255,255,255,.06)}
+.super-pill.active{border-color:rgba(219,112,147,.5);color:#fff;background:rgba(219,112,147,.15);box-shadow:0 0 12px rgba(219,112,147,.2)}
+.sp-emoji{font-size:.9rem}.sp-label{white-space:nowrap}
+.mode-desc{text-align:center;padding:.4rem 1rem .6rem;display:flex;flex-direction:column;align-items:center;gap:.15rem;flex-shrink:0}
+.mode-emoji{font-size:1.4rem}.mode-title{font-size:1rem;font-weight:700;color:#fff}
+.mode-sub{font-size:.8rem;font-weight:600;color:rgba(255,255,255,.35);font-style:italic}
+.mode-formula{font-size:.72rem;font-weight:600;color:rgba(255,255,255,.25);margin-top:.15rem;padding:.2rem .7rem;border-radius:1rem;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}
+.toggle-row{display:flex;justify-content:center;padding:.25rem 0 .6rem;flex-shrink:0}
+.pct-toggle{display:flex;border:1.5px solid rgba(255,255,255,.1);border-radius:.6rem;overflow:hidden}
+.toggle-btn{font-family:inherit;font-size:.82rem;font-weight:700;padding:.4rem 1.2rem;border:none;cursor:pointer;background:transparent;color:rgba(255,255,255,.35);transition:all .2s}
+.toggle-btn:first-child{border-right:1px solid rgba(255,255,255,.08)}
+.toggle-btn:hover{color:rgba(255,255,255,.6)}
+.toggle-btn.active{background:rgba(255,255,255,.1);color:#fff}
+.ratio-pip{font-size:1.15rem;font-weight:700;color:#fff;background:rgba(219,112,147,.25);box-shadow:0 0 12px rgba(219,112,147,.2);padding:.35rem .75rem}
+.raw-counts{display:flex;flex-direction:column;gap:.1rem}
+.mini-stat{font-size:.65rem;font-weight:700;line-height:1.1}
+.mini-stat.fc{color:#ff9eae}.mini-stat.mc{color:#9ec4ff}.mini-stat.kc{color:#d9a8ff}
 .empty-msg{text-align:center;padding:3rem 1rem;color:rgba(255,255,255,.25);font-weight:600}
 .empty-msg .big{font-size:3rem;margin-bottom:.75rem}
 .back-bar{padding:.5rem 1rem 1.25rem;flex-shrink:0}
@@ -635,6 +742,7 @@ html,body{margin:0;padding:0;min-height:100%;background:linear-gradient(155deg,#
   .fmk-action-row{padding-bottom:90px}
   .fmk-instruct{font-size:.78rem;padding:.05rem 1rem .25rem}
   .rank-card{padding:.65rem .7rem}
+  .super-pills{gap:.3rem}.super-pill{font-size:.72rem;padding:.3rem .6rem}
   .back-bar{padding-bottom:calc(.75rem + env(safe-area-inset-bottom,0px))}
 }
 @media(min-width:769px){.fmk-sticky{display:none!important}}
