@@ -24,7 +24,7 @@
     // strip the export default, compile and run it, then mount.
 
     (async () => {
-      const res = await fetch("./fmkify-f1.jsx");
+      const res = await fetch("/f1/fmkify-f1.jsx");
       let src = await res.text();
 
       // Remove the ES module import — React hooks are available as globals
