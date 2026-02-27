@@ -102,7 +102,15 @@ async function recordVote(vote, token) {
   } catch(e) { return { data: null, error: null }; }
 }
 
-function randomTrio() { return [...DRIVERS].sort(() => Math.random()-.5).slice(0,3); }
+function randomTrio() {
+  // Fisher-Yates shuffle — guarantees uniform distribution across all drivers
+  const arr = [...DRIVERS];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr.slice(0, 3);
+}
 
 function spawnConfetti() {
   const c = ["#DB7093","#E8A0BF","#FFB696","#ff6b9d","#ffa06b","#aa00ff","#ff1744"];
@@ -207,6 +215,8 @@ function GameView({onShowRankings,globalData,onVote}) {
   const [ghostDrag,setGhostDrag]=useState(null);
   const [slowdown,setSlowdown]=useState(null); // friendly message from 429 budget_exceeded
   const [activeBadge,setActiveBadge]=useState(null); // tap-to-assign: which badge is "held"
+  const [showMilestone,setShowMilestone]=useState(false); // one-time prompt at 10 rounds
+  const milestoneShownRef=useRef(false); // ensures milestone only fires once per session
   const busyRef=useRef(false); const cardRefs=useRef({}); const ghostRef=useRef(null);
   const isMobile=useIsMobile();
 
@@ -252,8 +262,18 @@ function GameView({onShowRankings,globalData,onVote}) {
     }
 
     // Success path — celebrate
-    setShowConf(true); spawnConfetti();
-    setTimeout(()=>{setShowConf(false);setTrio(randomTrio());setSels({});setRound(r=>r+1);busyRef.current=false;},1200);
+    const nextRound = round + 1;
+    if (nextRound === 11 && !milestoneShownRef.current) {
+      // Milestone: show rankings prompt once after 10th vote
+      milestoneShownRef.current = true;
+      setShowMilestone(true);
+      spawnConfetti();
+      setRound(nextRound);
+      busyRef.current = false;
+    } else {
+      setShowConf(true); spawnConfetti();
+      setTimeout(()=>{setShowConf(false);setTrio(randomTrio());setSels({});setRound(nextRound);busyRef.current=false;},1200);
+    }
   },[allDone,sels,onVote]);
 
   const shuffle=()=>{if(!busyRef.current){setTrio(randomTrio());setSels({});setActiveBadge(null);}};
@@ -276,7 +296,7 @@ function GameView({onShowRankings,globalData,onVote}) {
       <div className="fmk-instruct">
         <div style={{fontSize:'1rem',fontWeight:700,color:'rgba(255,255,255,.65)',marginBottom:'.1rem'}}>2026 Grid Edition</div>
         <div style={{fontSize:'.78rem',color:'rgba(255,255,255,.3)',marginBottom:'.3rem',fontStyle:'italic'}}>22 drivers. 3 at a time. No wrong answers. Some questionable ones.</div>
-        Drag or tap <b style={{color:'#ff1744'}}>F🔥</b>{' '}<b style={{color:'#2979ff'}}>M💍</b>{' '}<b style={{color:'#aa00ff'}}>K💀</b> — you know the rules.
+        Drag or tap <b style={{color:'#ff1744'}}>F🔥</b>{' '}<b style={{color:'#2979ff'}}>M💍</b>{' '}<b style={{color:'#aa00ff'}}>K💀</b> … you know the rules.
       </div>
 
       {!isMobile && <div className="fmk-badge-bar">
@@ -330,6 +350,16 @@ function GameView({onShowRankings,globalData,onVote}) {
         </div>
       </div>}
 
+      {showMilestone && <div className="fmk-confetti-overlay" style={{pointerEvents:'auto'}}>
+        <div className="confetti-card" style={{maxWidth:'360px'}}>
+          <div className="big-emoji">🔥</div>
+          <div className="conf-msg">10 rounds deep!</div>
+          <div className="round-text" style={{marginBottom:'1rem'}}>You're officially invested. Want to see how your picks compare?</div>
+          <button className="btn-submit" style={{width:'100%',marginBottom:'.5rem'}} onClick={()=>{setShowMilestone(false);onShowRankings();}}>📊 Check the Rankings</button>
+          <button className="btn-back" onClick={()=>{setShowMilestone(false);setTrio(randomTrio());setSels({});busyRef.current=false;}}>Keep Playing</button>
+        </div>
+      </div>}
+
       {ghostDrag && <div className={`ghost-badge ${ghostDrag.choice}-ghost`} style={{left:ghostDrag.x+'px',top:ghostDrag.y+'px'}}>
         {ghostDrag.choice==='f'?'🔥':ghostDrag.choice==='m'?'💍':'💀'}
       </div>}
@@ -347,7 +377,7 @@ function RankingsView({onBack,globalData}) {
   return (
     <div className="fmk-rankings-shell">
       <div className="fmk-topbar">
-        <div className="fmk-logo">🏆 <span className="accent">Rankings</span></div><div/>
+        <div className="fmk-logo">🏆 <span className="accent">FMKify</span> Rankings</div><div/>
         <button className="btn-icon" onClick={onBack}><span>←</span><span className="btn-label">Back</span></button>
       </div>
       <div className="rank-header"><div className="rank-stat">{total.toLocaleString()}</div><div className="rank-stat-label">community votes</div></div>
@@ -555,9 +585,9 @@ html,body{margin:0;padding:0;height:100%;background:linear-gradient(155deg,#160a
 .r-team{font-size:.7rem;color:rgba(255,255,255,.3);font-weight:600}
 .r-stripe{width:4px;border-radius:2px;align-self:stretch;flex-shrink:0}
 .rank-stats{display:flex;gap:.35rem;flex-shrink:0}
-.stat-pip{font-size:.72rem;font-weight:700;padding:.2rem .5rem;border-radius:.4rem;background:rgba(255,255,255,.05)}
+.stat-pip{font-size:.85rem;font-weight:700;padding:.25rem .6rem;border-radius:.4rem;background:rgba(255,255,255,.05)}
 .stat-pip.fc{color:var(--f-color)}.stat-pip.mc{color:var(--m-color)}.stat-pip.kc{color:var(--k-color)}
-.stat-pip.hl{font-size:.8rem;background:rgba(255,255,255,.1)}
+.stat-pip.hl{font-size:.95rem;background:rgba(255,255,255,.1)}
 .empty-msg{text-align:center;padding:3rem 1rem;color:rgba(255,255,255,.25);font-weight:600}
 .empty-msg .big{font-size:3rem;margin-bottom:.75rem}
 .back-bar{padding:.5rem 1rem 1.25rem;flex-shrink:0}
@@ -571,18 +601,18 @@ html,body{margin:0;padding:0;height:100%;background:linear-gradient(155deg,#160a
 .footer-cta{font-size:.72rem;color:rgba(219,112,147,.5);text-decoration:none;transition:color .2s}
 .footer-cta:hover{color:rgba(219,112,147,.8)}
 @media(max-width:768px){
-  .fmk-app{max-width:100%}.fmk-badge-bar{display:none!important}
-  .fmk-cards-grid{flex-direction:column;gap:.45rem;padding:.3rem 1rem;justify-content:flex-start}
-  .fmk-card{flex:0 0 auto;flex-direction:row;max-width:100%;border-radius:var(--radius-sm);min-height:0}
-  .fmk-card .fmk-banner{width:70px;min-height:unset;flex:0 0 70px}
-  .fmk-card .fmk-banner .fmk-num{font-size:2.2rem}
-  .fmk-card .fmk-banner .driver-photo{width:60px;max-height:65px}
+  .fmk-app{max-width:100%;overflow-y:auto}.fmk-badge-bar{display:none!important}
+  .fmk-cards-grid{flex-direction:column;gap:.6rem;padding:.3rem 1rem;justify-content:flex-start;align-items:stretch;flex:none}
+  .fmk-card{flex:0 0 auto;flex-direction:column;max-width:100%;border-radius:var(--radius-sm);min-height:0}
+  .fmk-card .fmk-banner{width:100%;min-height:unset;aspect-ratio:4/3}
+  .fmk-card .fmk-banner .driver-photo{width:100%;height:100%;object-fit:cover;object-position:center top}
+  .fmk-card .fmk-banner .fmk-num{font-size:3rem}
   .fmk-card .fmk-banner .helm-emoji{display:none}
-  .fmk-card .fmk-info{flex:1;padding:.55rem .7rem;display:flex;align-items:center;gap:.5rem;background:transparent}
-  .fmk-card .driver-name{font-size:1rem;flex:1}.fmk-card .team-name{display:none}
-  .fmk-btns{flex-direction:row;gap:.35rem;padding:0;flex-shrink:0}
-  .fmk-btn{height:40px;padding:0 .55rem;font-size:1rem}.fmk-btn .btn-lbl{font-size:.68rem}
-  .fmk-stamp{font-size:2rem;top:50%}.stamp-txt{font-size:1.3rem}
+  .fmk-card .fmk-info{padding:.6rem .8rem .5rem;display:flex;align-items:center;gap:.5rem;background:linear-gradient(to top,rgba(25,12,22,.98) 55%,rgba(25,12,22,.82))}
+  .fmk-card .driver-name{font-size:1.1rem;flex:1}.fmk-card .team-name{display:none}
+  .fmk-btns{flex-direction:row;gap:.4rem;padding:0;flex-shrink:0}
+  .fmk-btn{height:42px;padding:0 .7rem;font-size:1.05rem}.fmk-btn .btn-lbl{font-size:.72rem}
+  .fmk-stamp{font-size:2.5rem;top:40%}.stamp-txt{font-size:1.5rem}
   .fmk-sticky{display:block}.fmk-submit-bar{display:none}
   .fmk-action-row{padding-bottom:90px}
   .fmk-instruct{font-size:.78rem;padding:.05rem 1rem .25rem}
