@@ -96,13 +96,23 @@ function emptyTallies() {
   return { tallies:t, totalVotes:0 };
 }
 
-async function fetchToken() {
-  try {
-    const r = await fetch(`${API_BASE}/token`);
-    if (!r.ok) return null;
-    const data = await r.json();
-    return data.token || null;
-  } catch(e) { return null; }
+async function fetchToken(retries = 2) {
+  for (let i = 0; i <= retries; i++) {
+    try {
+      const r = await fetch(`${API_BASE}/token`);
+      if (r.ok) {
+        const data = await r.json();
+        return data.token || null;
+      }
+      // Rate limited — wait and retry
+      if (r.status === 429 && i < retries) {
+        await new Promise(res => setTimeout(res, 3000 * (i + 1)));
+        continue;
+      }
+      return null;
+    } catch(e) { return null; }
+  }
+  return null;
 }
 
 async function loadGlobal() {
