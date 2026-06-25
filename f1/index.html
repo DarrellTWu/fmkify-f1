@@ -39,7 +39,7 @@
 
       // Compile JSX → JS via Babel
       const compiled = Babel.transform(src, {
-        presets: ['react'],
+        presets: [['react', { runtime: 'classic' }]],
         filename: 'fmkify-f1.jsx',
       }).code;
 
