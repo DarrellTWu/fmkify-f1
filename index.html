@@ -178,6 +178,14 @@
       <div class="section-header">
         <div class="section-title">🎮 Play Now</div>
       </div>
+      <a href="/nba/" class="play-card" style="margin-bottom: .8rem;">
+        <div class="play-emoji">🏀</div>
+        <div class="play-info">
+          <div class="play-title"><span class="accent">FMKify NBA</span> <span style="font-size:.65rem;font-weight:700;color:var(--pink);vertical-align:middle;">NEW</span></div>
+          <div class="play-desc">50 players. 3 at a time. The whole league gets judged.</div>
+        </div>
+        <div class="play-badge">▶ Play</div>
+      </a>
       <a href="/f1/" class="play-card">
         <div class="play-emoji">🏎️</div>
         <div class="play-info">
@@ -205,8 +213,9 @@
   </div>
 
   <script>
+    // "nba" shipped (it lives at /nba/ now) — it stays out of the list but its
+    // votes remain in Redis, so totals are computed from visible options only.
     const OPTIONS = [
-      { id: "nba",         emoji: "🏀", label: "NBA All-Stars" },
       { id: "wwe",         emoji: "🤼", label: "WWE Superstars" },
       { id: "love-island", emoji: "🌹", label: "Love Island Cast" },
       { id: "bridgerton",  emoji: "👑", label: "Bridgerton Characters" },
@@ -221,8 +230,9 @@
     const msgEl = document.getElementById("poll-msg");
 
     function render() {
-      const total = Object.values(voteCounts).reduce((a, b) => a + b, 0) || 0;
-      const maxCount = Math.max(...Object.values(voteCounts), 1);
+      const visibleCounts = OPTIONS.map(function(opt) { return voteCounts[opt.id] || 0; });
+      const total = visibleCounts.reduce((a, b) => a + b, 0) || 0;
+      const maxCount = Math.max.apply(null, visibleCounts.concat(1));
       container.innerHTML = "";
 
       OPTIONS.forEach(function(opt) {

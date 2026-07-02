@@ -43,20 +43,36 @@ export const SESSION_BUDGET = 900;      // max votes per session
 export const TOKEN_RATE_LIMIT_TTL = 5;  // 5 s between new tokens per IP
 export const TALLIES_KEY = "f1:tallies"; // single JSON key for all vote data
 
+// NBA game — same mechanics, separate roster + Redis namespace.
+export const NBA_PLAYER_COUNT = 50;
+export const NBA_TALLIES_KEY = "nba:tallies";
+export const NBA_SESSION_PREFIX = "nba:session:";
+export const NBA_IP_LIMIT_PREFIX = "nba:ip-limit:";
+
 // ---------------------------------------------------------------------------
 // Tallies helpers — single-key storage
 // ---------------------------------------------------------------------------
 // Shape: { tallies: { "1": { f, m, k }, ... }, totalVotes: N }
-export function emptyTallies() {
+// Generic versions take the roster size + Redis key so each game can reuse them.
+export function emptyTalliesFor(count) {
   const tallies = {};
-  for (let i = 1; i <= DRIVER_COUNT; i++) tallies[i] = { f: 0, m: 0, k: 0 };
+  for (let i = 1; i <= count; i++) tallies[i] = { f: 0, m: 0, k: 0 };
   return { tallies, totalVotes: 0 };
 }
 
-export async function readTallies() {
-  const raw = await redis.get(TALLIES_KEY);   // 1 command
-  if (!raw) return emptyTallies();
+export async function readTalliesFor(key, count) {
+  const raw = await redis.get(key);           // 1 command
+  if (!raw) return emptyTalliesFor(count);
   return typeof raw === "string" ? JSON.parse(raw) : raw;
+}
+
+// F1 wrappers — kept so existing /api/f1/* handlers are untouched.
+export function emptyTallies() {
+  return emptyTalliesFor(DRIVER_COUNT);
+}
+
+export async function readTallies() {
+  return readTalliesFor(TALLIES_KEY, DRIVER_COUNT);
 }
 
 export async function writeTallies(data) {

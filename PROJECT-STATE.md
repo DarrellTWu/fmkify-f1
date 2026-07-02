@@ -1,6 +1,6 @@
 # FMKify — Project State & Architecture
 
-**Last updated:** 2026-02-25
+**Last updated:** 2026-07-01
 **Repo:** github.com/DarrellTWu/fmkify-f1
 **Live:** https://www.fmkify.com
 **Admin:** admin@fmkify.com
@@ -11,7 +11,14 @@
 
 FMKify is a "F*ck, Marry, Kill" voting game platform. Users are shown 3 random people from a roster, assign F/M/K to each, and submit. Community-wide tallies are tracked and displayed on a rankings page.
 
-The first (and currently only) game is **FMKify F1** — the 2026 Formula 1 grid (22 drivers). The site is designed to host multiple games at different subpaths in the future.
+Two games are live:
+
+- **FMKify F1** (`/f1/`) — the 2026 Formula 1 grid (22 drivers). The original game.
+- **FMKify NBA** (`/nba/`) — 50 high-profile NBA players, at least one per team.
+  A near-clone of the F1 game (same mechanics, quips, rankings, superlatives)
+  with its own roster, team colors, and Redis namespace.
+
+The site is designed to host more games at additional subpaths.
 
 ---
 
@@ -21,7 +28,10 @@ The first (and currently only) game is **FMKify F1** — the 2026 Formula 1 grid
 www.fmkify.com/              → Static homepage (index.html) with poll
 www.fmkify.com/f1/            → F1 game (single-file React component)
 www.fmkify.com/f1/rankings/   → F1 rankings (same React app, URL-routed)
+www.fmkify.com/nba/           → NBA game (single-file React component)
+www.fmkify.com/nba/rankings/  → NBA rankings (same React app, URL-routed)
 www.fmkify.com/api/f1/*       → F1 game API (Vercel serverless functions)
+www.fmkify.com/api/nba/*      → NBA game API (Vercel serverless functions)
 www.fmkify.com/api/poll        → Homepage poll API
 ```
 
@@ -37,15 +47,22 @@ fmkify-f1/
 ├── vercel.json             # Routing, CORS headers, trailing slash config
 ├── package.json            # Only dependency: @upstash/redis
 ├── api/
-│   ├── _lib.js             # Shared: Redis client, CORS helper, constants
+│   ├── _lib.js             # Shared: Redis client, CORS helper, constants, tallies helpers
 │   ├── poll.js             # GET/POST /api/poll — homepage "what's next" poll
-│   └── f1/
-│       ├── tallies.js      # GET /api/f1/tallies — public read-only vote totals
-│       ├── token.js        # GET /api/f1/token — session token issuance
-│       └── vote.js         # POST /api/f1/vote — vote submission
-└── f1/
-    ├── index.html          # Loads React + Babel, fetches and compiles the JSX
-    └── fmkify-f1.jsx       # The entire F1 game — single-file React component (~595 lines)
+│   ├── f1/
+│   │   ├── tallies.js      # GET /api/f1/tallies — public read-only vote totals
+│   │   ├── token.js        # GET /api/f1/token — session token issuance
+│   │   └── vote.js         # POST /api/f1/vote — vote submission
+│   └── nba/
+│       ├── tallies.js      # GET /api/nba/tallies — same contract as F1
+│       ├── token.js        # GET /api/nba/token — same contract as F1
+│       └── vote.js         # POST /api/nba/vote — same contract as F1
+├── f1/
+│   ├── index.html          # Loads React + Babel, fetches and compiles the JSX
+│   └── fmkify-f1.jsx       # The entire F1 game — single-file React component
+└── nba/
+    ├── index.html          # Same loader pattern as f1/index.html
+    └── fmkify-nba.jsx      # The entire NBA game — single-file React component
 ```
 
 ### Key architectural decisions
@@ -170,10 +187,12 @@ Combined theoretical max: ~3,484 votes/hour from a single IP.
 
 | Key | Type | TTL | Contents |
 |---|---|---|---|
-| `driver:{1-22}` | Hash | None | `{ f: int, m: int, k: int }` |
-| `totalVotes` | String | None | Integer counter |
-| `session:{token}` | Hash | 24h | `{ lastVote: epoch_ms, votes: int }` |
-| `ip-limit:{ip}` | String | 30s | `1` (existence = rate limited) |
+| `f1:tallies` | String (JSON) | None | `{ tallies: { "1": {f,m,k}, ... }, totalVotes: N }` |
+| `session:{token}` | Hash | 24h | F1 session — `{ lastVote: epoch_ms, votes: int }` |
+| `ip-limit:{ip}` | String | short | F1 token rate limit (existence = rate limited) |
+| `nba:tallies` | String (JSON) | None | Same shape as `f1:tallies`, 50 players |
+| `nba:session:{token}` | Hash | 24h | NBA session — same shape as F1 session |
+| `nba:ip-limit:{ip}` | String | short | NBA token rate limit |
 | `poll:next-game` | Hash | None | `{ nba: int, wwe: int, ... }` |
 | `poll-voted:{ip}` | String | 24h | `1` (existence = already voted) |
 
@@ -263,9 +282,37 @@ The client's `API_BASE` constant (currently `"/api/f1"`) is prepended to all fet
 
 ---
 
+## The NBA Game (nba/fmkify-nba.jsx)
+
+Structural clone of the F1 client with a different dataset. Differences that matter:
+
+- **Roster:** 50 players, `PLAYERS` array (id, name, team, jersey num). At least
+  one player per NBA team. Ids 1–50 are the API contract (`NBA_PLAYER_COUNT`).
+- **Photos:** official NBA headshot CDN —
+  `https://cdn.nba.com/headshots/nba/latest/1040x760/{personId}.png`. These are
+  transparent PNGs, face-centered, ~4:3, so they drop into the same card layout
+  the F1 Cloudinary crops used (no extra CSS cropping, same rule as F1). The
+  `PLAYER_PHOTOS` map keys player id → nba.com person id URL. All 50 URLs were
+  verified live at build time.
+- **Team colors:** `TC` maps all 30 team names to brand hexes, lightened where
+  the brand color is too dark to read on the near-black card background.
+- **API base:** `/api/nba`; routes `/nba/` and `/nba/rankings/` (rewrites in
+  vercel.json, same pattern as F1).
+- Everything else (quips, interaction modes, submit flow, rankings,
+  superlatives, anti-stuffing behavior) matches the F1 section above.
+
+Shared server code: `api/_lib.js` gained generic `emptyTalliesFor(count)` /
+`readTalliesFor(key, count)` helpers plus NBA constants; the original F1
+functions are unchanged wrappers, so `/api/f1/*` handlers were not touched.
+
+---
+
 ## What's Not Built Yet
 
-- **Other games** (NBA, WWE, Love Island, Bridgerton, The Office) — poll is live collecting interest
+- **Other games** (WWE, Love Island, Bridgerton, The Office) — poll is live
+  collecting interest. NBA shipped (July 2026) and was removed from the poll
+  options; its historical poll votes remain in Redis but are excluded from the
+  displayed totals.
 - **No build/bundle step** — JSX is compiled in the browser via Babel standalone
 - **No CI/CD** beyond Vercel's auto-deploy on push
 - **No monitoring/alerting** — relies on Vercel's built-in logs and Upstash's dashboard

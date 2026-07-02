@@ -13,6 +13,8 @@
   ],
   "rewrites": [
     { "source": "/f1/rankings", "destination": "/f1/index.html" },
-    { "source": "/f1/rankings/", "destination": "/f1/index.html" }
+    { "source": "/f1/rankings/", "destination": "/f1/index.html" },
+    { "source": "/nba/rankings", "destination": "/nba/index.html" },
+    { "source": "/nba/rankings/", "destination": "/nba/index.html" }
   ]
 }

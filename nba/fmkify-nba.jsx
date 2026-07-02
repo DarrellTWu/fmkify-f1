@@ -1,98 +1,190 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 
-const DRIVERS = [
-  { id:1,  name:"Lando Norris",      team:"McLaren",      num:4   },
-  { id:2,  name:"Oscar Piastri",     team:"McLaren",      num:81  },
-  { id:3,  name:"Charles Leclerc",   team:"Ferrari",      num:16  },
-  { id:4,  name:"Lewis Hamilton",    team:"Ferrari",      num:44  },
-  { id:5,  name:"Max Verstappen",    team:"Red Bull",     num:1   },
-  { id:6,  name:"Isack Hadjar",      team:"Red Bull",     num:34  },
-  { id:7,  name:"George Russell",    team:"Mercedes",     num:63  },
-  { id:8,  name:"Kimi Antonelli",    team:"Mercedes",     num:12  },
-  { id:9,  name:"Fernando Alonso",   team:"Aston Martin", num:14  },
-  { id:10, name:"Lance Stroll",      team:"Aston Martin", num:18  },
-  { id:11, name:"Pierre Gasly",      team:"Alpine",       num:10  },
-  { id:12, name:"Franco Colapinto",  team:"Alpine",       num:43  },
-  { id:13, name:"Alex Albon",        team:"Williams",     num:23  },
-  { id:14, name:"Carlos Sainz",      team:"Williams",     num:55  },
-  { id:15, name:"Liam Lawson",       team:"Racing Bulls", num:30  },
-  { id:16, name:"Arvid Lindblad",    team:"Racing Bulls", num:87  },
-  { id:17, name:"Esteban Ocon",      team:"Haas",         num:31  },
-  { id:18, name:"Oliver Bearman",    team:"Haas",         num:38  },
-  { id:19, name:"Nico Hülkenberg",   team:"Audi",         num:27  },
-  { id:20, name:"Gabriel Bortoleto", team:"Audi",         num:5   },
-  { id:21, name:"Valtteri Bottas",   team:"Cadillac",     num:77  },
-  { id:22, name:"Sergio Pérez",      team:"Cadillac",     num:11  },
+const PLAYERS = [
+  { id:1,  name:"LeBron James",            team:"Lakers",        num:23 },
+  { id:2,  name:"Luka Dončić",             team:"Lakers",        num:77 },
+  { id:3,  name:"Austin Reaves",           team:"Lakers",        num:15 },
+  { id:4,  name:"Stephen Curry",           team:"Warriors",      num:30 },
+  { id:5,  name:"Jimmy Butler",            team:"Warriors",      num:10 },
+  { id:6,  name:"Draymond Green",          team:"Warriors",      num:23 },
+  { id:7,  name:"Kevin Durant",            team:"Rockets",       num:7  },
+  { id:8,  name:"Alperen Şengün",          team:"Rockets",       num:28 },
+  { id:9,  name:"Nikola Jokić",            team:"Nuggets",       num:15 },
+  { id:10, name:"Jamal Murray",            team:"Nuggets",       num:27 },
+  { id:11, name:"Shai Gilgeous-Alexander", team:"Thunder",       num:2  },
+  { id:12, name:"Chet Holmgren",           team:"Thunder",       num:7  },
+  { id:13, name:"Victor Wembanyama",       team:"Spurs",         num:1  },
+  { id:14, name:"De'Aaron Fox",            team:"Spurs",         num:4  },
+  { id:15, name:"Anthony Edwards",         team:"Timberwolves",  num:5  },
+  { id:16, name:"Rudy Gobert",             team:"Timberwolves",  num:27 },
+  { id:17, name:"Ja Morant",               team:"Grizzlies",     num:12 },
+  { id:18, name:"Jaren Jackson Jr.",       team:"Grizzlies",     num:13 },
+  { id:19, name:"Devin Booker",            team:"Suns",          num:1  },
+  { id:20, name:"Anthony Davis",           team:"Mavericks",     num:3  },
+  { id:21, name:"Kyrie Irving",            team:"Mavericks",     num:11 },
+  { id:22, name:"Klay Thompson",           team:"Mavericks",     num:31 },
+  { id:23, name:"Cooper Flagg",            team:"Mavericks",     num:32 },
+  { id:24, name:"Kawhi Leonard",           team:"Clippers",      num:2  },
+  { id:25, name:"James Harden",            team:"Clippers",      num:1  },
+  { id:26, name:"Damian Lillard",          team:"Trail Blazers", num:0  },
+  { id:27, name:"Zion Williamson",         team:"Pelicans",      num:1  },
+  { id:28, name:"Jordan Poole",            team:"Pelicans",      num:3  },
+  { id:29, name:"Russell Westbrook",       team:"Kings",         num:4  },
+  { id:30, name:"Jayson Tatum",            team:"Celtics",       num:0  },
+  { id:31, name:"Jaylen Brown",            team:"Celtics",       num:7  },
+  { id:32, name:"Jalen Brunson",           team:"Knicks",        num:11 },
+  { id:33, name:"Karl-Anthony Towns",      team:"Knicks",        num:32 },
+  { id:34, name:"Joel Embiid",             team:"76ers",         num:21 },
+  { id:35, name:"Tyrese Maxey",            team:"76ers",         num:0  },
+  { id:36, name:"Paul George",             team:"76ers",         num:8  },
+  { id:37, name:"Giannis Antetokounmpo",   team:"Bucks",         num:34 },
+  { id:38, name:"Donovan Mitchell",        team:"Cavaliers",     num:45 },
+  { id:39, name:"Cade Cunningham",         team:"Pistons",       num:2  },
+  { id:40, name:"Tyrese Haliburton",       team:"Pacers",        num:0  },
+  { id:41, name:"Paolo Banchero",          team:"Magic",         num:5  },
+  { id:42, name:"Bam Adebayo",             team:"Heat",          num:13 },
+  { id:43, name:"Tyler Herro",             team:"Heat",          num:14 },
+  { id:44, name:"Trae Young",              team:"Hawks",         num:11 },
+  { id:45, name:"LaMelo Ball",             team:"Hornets",       num:1  },
+  { id:46, name:"Scottie Barnes",          team:"Raptors",       num:4  },
+  { id:47, name:"Lauri Markkanen",         team:"Jazz",          num:23 },
+  { id:48, name:"CJ McCollum",             team:"Wizards",       num:3  },
+  { id:49, name:"Michael Porter Jr.",      team:"Nets",          num:1  },
+  { id:50, name:"Coby White",              team:"Bulls",         num:0  },
 ];
 
+// Team colors — brand hexes, lightened where the brand color is too dark
+// to read against the near-black card background.
 const TC = {
-  "McLaren":"#FF8700","Ferrari":"#DC0000","Red Bull":"#1E41FF","Mercedes":"#27F4D2",
-  "Aston Martin":"#229971","Alpine":"#FF87BC","Williams":"#1868DB","Racing Bulls":"#6692FF",
-  "Haas":"#B6BABD","Audi":"#FF1E00","Cadillac":"#C0A050",
+  "Lakers":"#9D5CE8","Warriors":"#FFC72C","Rockets":"#D5354A","Nuggets":"#FEC524",
+  "Thunder":"#0091EA","Spurs":"#C4CED4","Timberwolves":"#3E8EDE","Grizzlies":"#7096C9",
+  "Suns":"#E56020","Mavericks":"#3E7BDD","Clippers":"#ED174C","Trail Blazers":"#E03A3E",
+  "Pelicans":"#C8A15A","Kings":"#8E5CC7","Celtics":"#00A34D","Knicks":"#F58426",
+  "76ers":"#2E7BD0","Bucks":"#00A550","Cavaliers":"#C13A5B","Pistons":"#E01E3C",
+  "Pacers":"#FDBB30","Magic":"#0092DC","Heat":"#F9423A","Hawks":"#E03A3E",
+  "Hornets":"#00B2CC","Raptors":"#D91A4D","Jazz":"#F9A01B","Wizards":"#E31837",
+  "Nets":"#B8C4CE","Bulls":"#CE1141",
 };
 
-// To flip to self-hosted images later, change F1_CDN and update paths in DRIVER_PHOTOS.
-const F1_CDN = "https://media.formula1.com/image/upload/c_fill,g_face,w_480,h_360,y_-30/q_auto/d_common:f1:2026:fallback:driver:2026fallbackdriverright.webp/v1740000000/common/f1/2026";
-const DRIVER_PHOTOS = {
-  1:`${F1_CDN}/mclaren/lannor01/2026mclarenlannor01right.webp`,
-  2:`${F1_CDN}/mclaren/oscpia01/2026mclarenoscpia01right.webp`,
-  3:`${F1_CDN}/ferrari/chalec01/2026ferrarichalec01right.webp`,
-  4:`${F1_CDN}/ferrari/lewham01/2026ferrarilewham01right.webp`,
-  5:`${F1_CDN}/redbullracing/maxver01/2026redbullracingmaxver01right.webp`,
-  6:`${F1_CDN}/redbullracing/isahad01/2026redbullracingisahad01right.webp`,
-  7:`${F1_CDN}/mercedes/georus01/2026mercedesgeorus01right.webp`,
-  8:`${F1_CDN}/mercedes/andant01/2026mercedesandant01right.webp`,
-  9:`${F1_CDN}/astonmartin/feralo01/2026astonmartinferalo01right.webp`,
-  10:`${F1_CDN}/astonmartin/lanstr01/2026astonmartinlanstr01right.webp`,
-  11:`${F1_CDN}/alpine/piegas01/2026alpinepiegas01right.webp`,
-  12:`${F1_CDN}/alpine/fracol01/2026alpinefracol01right.webp`,
-  13:`${F1_CDN}/williams/alealb01/2026williamsalealb01right.webp`,
-  14:`${F1_CDN}/williams/carsai01/2026williamscarsai01right.webp`,
-  15:`${F1_CDN}/racingbulls/lialaw01/2026racingbullslialaw01right.webp`,
-  16:`${F1_CDN}/racingbulls/arvlin01/2026racingbullsarvlin01right.webp`,
-  17:`${F1_CDN}/haasf1team/estoco01/2026haasf1teamestoco01right.webp`,
-  18:`${F1_CDN}/haasf1team/olibea01/2026haasf1teamolibea01right.webp`,
-  19:`${F1_CDN}/audi/nichul01/2026audinichul01right.webp`,
-  20:`${F1_CDN}/audi/gabbor01/2026audigabbor01right.webp`,
-  21:`${F1_CDN}/cadillac/valbot01/2026cadillacvalbot01right.webp`,
-  22:`${F1_CDN}/cadillac/serper01/2026cadillacserper01right.webp`,
+// Official NBA headshot CDN — 1040x760 transparent PNGs, face-centered.
+// To flip to self-hosted images later, change NBA_CDN and update PLAYER_PHOTOS.
+const NBA_CDN = "https://cdn.nba.com/headshots/nba/latest/1040x760";
+const PLAYER_PHOTOS = {
+  1:`${NBA_CDN}/2544.png`,
+  2:`${NBA_CDN}/1629029.png`,
+  3:`${NBA_CDN}/1630559.png`,
+  4:`${NBA_CDN}/201939.png`,
+  5:`${NBA_CDN}/202710.png`,
+  6:`${NBA_CDN}/203110.png`,
+  7:`${NBA_CDN}/201142.png`,
+  8:`${NBA_CDN}/1630578.png`,
+  9:`${NBA_CDN}/203999.png`,
+  10:`${NBA_CDN}/1627750.png`,
+  11:`${NBA_CDN}/1628983.png`,
+  12:`${NBA_CDN}/1631096.png`,
+  13:`${NBA_CDN}/1641705.png`,
+  14:`${NBA_CDN}/1628368.png`,
+  15:`${NBA_CDN}/1630162.png`,
+  16:`${NBA_CDN}/203497.png`,
+  17:`${NBA_CDN}/1629630.png`,
+  18:`${NBA_CDN}/1628991.png`,
+  19:`${NBA_CDN}/1626164.png`,
+  20:`${NBA_CDN}/203076.png`,
+  21:`${NBA_CDN}/202681.png`,
+  22:`${NBA_CDN}/202691.png`,
+  23:`${NBA_CDN}/1642843.png`,
+  24:`${NBA_CDN}/202695.png`,
+  25:`${NBA_CDN}/201935.png`,
+  26:`${NBA_CDN}/203081.png`,
+  27:`${NBA_CDN}/1629627.png`,
+  28:`${NBA_CDN}/1629673.png`,
+  29:`${NBA_CDN}/201566.png`,
+  30:`${NBA_CDN}/1628369.png`,
+  31:`${NBA_CDN}/1627759.png`,
+  32:`${NBA_CDN}/1628973.png`,
+  33:`${NBA_CDN}/1626157.png`,
+  34:`${NBA_CDN}/203954.png`,
+  35:`${NBA_CDN}/1630178.png`,
+  36:`${NBA_CDN}/202331.png`,
+  37:`${NBA_CDN}/203507.png`,
+  38:`${NBA_CDN}/1628378.png`,
+  39:`${NBA_CDN}/1630595.png`,
+  40:`${NBA_CDN}/1630169.png`,
+  41:`${NBA_CDN}/1631094.png`,
+  42:`${NBA_CDN}/1628389.png`,
+  43:`${NBA_CDN}/1629639.png`,
+  44:`${NBA_CDN}/1629027.png`,
+  45:`${NBA_CDN}/1630163.png`,
+  46:`${NBA_CDN}/1630567.png`,
+  47:`${NBA_CDN}/1628374.png`,
+  48:`${NBA_CDN}/203468.png`,
+  49:`${NBA_CDN}/1629008.png`,
+  50:`${NBA_CDN}/1629632.png`,
 };
 
-const HELMS = ["🏎️","🏁","⚡","🌟","💨","🏆","🎯","🚀","🦊","🔥","🌪️"];
+const HOOPS = ["🏀","🔥","👟","🎯","💪","🏆","⭐","🚀","🦅","💫","🌪️"];
 
 // ── Vote quips ─────────────────────────────────────────────────
 const QUIPS = {
-  1:  { f:"Certified Twitch chat behavior",                      m:"Finally, someone who gets your gaming addiction",        k:"The streamers are typing..." },
-  2:  { f:"Ice cold taste",                                       m:"Prepare for deadpan dinner conversation forever",       k:"Australia will remember this" },
-  3:  { f:"Il Predestinato to break your heart",                  m:"Hope you like piano serenades and pain",                k:"Ferrari's strategists already did this" },
-  4:  { f:"Still got it ✨",                                      m:"Get ready for couples therapy and Met Gala fits",       k:"Bono, my marriage is gone" },
-  5:  { f:"Simply lovely behavior",                               m:"Hope you enjoy sim racing dates",                       k:"Inchident? I think so." },
-  6:  { f:"Rookie of the year... in your heart",                  m:"Betting on future potential, bold",                     k:"Red Bull already has him on thin ice" },
-  7:  { f:"PowerPoint presentation of a man",                     m:"Your parents would be SO proud",                        k:"The GPDA will hear about this" },
-  8:  { f:"FBI OPEN UP— wait he's 18 now, carry on",             m:"You know he was born in 2007 right?",                   k:"Toto is watching 👀" },
-  9:  { f:"GP2 engine? GP2 standards.",                           m:"All the time you have to leave the space... for commitment", k:"Survived McLaren-Honda, can't survive you" },
-  10: { f:"Interesting financial strategy",                       m:"Congrats on marrying into Aston Martin ownership",      k:"His dad owns the team, you can't fire him" },
-  11: { f:"Yuki is typing...",                                    m:"Hope you like French poetry and AlphaTauri drip",       k:"Red Bull sends their regards" },
-  12: { f:"Argentina's finest export",                            m:"Williams already called dibs",                          k:"You monster, he just got here!" },
-  13: { f:"Best post-race debrief of your life",                  m:"The stability you've been looking for",                 k:"His army of pets will avenge him" },
-  14: { f:"Smooth operator indeed",                               m:"Prepare for golf dates and perfect hair genes",         k:"Ferrari tried this, it didn't work out" },
-  15: { f:"He'll fight Pérez AND for you",                        m:"Aggressive on track, committed off track",              k:"Red Bull demotion any% speedrun" },
-  16: { f:"The only rookie on the grid gets... this treatment",   m:"Long-term investment strategy",                         k:"He hasn't even finished a season yet, chill" },
-  17: { f:"Alpine regrets unlocked",                              m:"Pierre Gasly has left the chat",                        k:"Liked by Pierre Gasly" },
-  18: { f:"Ferrari Academy's pride and joy",                      m:"Investing early, smart",                                k:"Give the kid a chance!" },
-  19: { f:"Dad energy off the charts",                            m:"Finally, a podium (at the wedding)",                    k:"First podium in 15 years and THIS is the thanks?" },
-  20: { f:"Brazilian pipeline continues",                         m:"Sauber/Audi believer detected",                         k:"Let him cook first!" },
-  21: { f:"Traditions (ass pic in the DMs incoming)",              m:"To whom it may concern... yes",                         k:"James, this is unacceptable" },
-  22: { f:"Redemption arc begins now",                            m:"Red Bull wishes they'd committed like this",            k:"You've made an enemy of Mexico" },
+  1:  { f:"Taco Tuesday just got interesting",                    m:"You're marrying a whole media empire",                   k:"Skip Bayless just hit record" },
+  2:  { f:"Step-back into your heart",                            m:"Hope you like precision passing and post-game gelato",   k:"Nico Harrison did it first" },
+  3:  { f:"Hillbilly Kobe has entered the chat",                  m:"Small-town wedding, franchise-player upside",            k:"Lakers Twitter will find you" },
+  4:  { f:"Night night 😴",                                       m:"Awkward — have you met Ayesha?",                         k:"You just united the entire Bay Area against you" },
+  5:  { f:"Big Face Coffee, your place",                          m:"Hope you like country music and 4 AM workouts",          k:"He's already in the gym plotting revenge" },
+  6:  { f:"Bold. He podcasts about everything.",                  m:"The new media power couple",                             k:"The refs saw it. Flagrant 2." },
+  7:  { f:"He'll text you back at 3 AM from a burner",            m:"The burner accounts now have a +1",                      k:"He's typing a 12-tweet response" },
+  8:  { f:"Baby Jokić energy",                                    m:"The anchor of your life and the paint",                  k:"Istanbul will remember this" },
+  9:  { f:"He'd honestly rather be with the horses",              m:"Summers in Sombor. You're a horse person now.",          k:"The horses saw everything" },
+  10: { f:"Playoff Jamal showed up for you",                      m:"Committed since the bubble",                             k:"He only appears in the playoffs anyway" },
+  11: { f:"Best-dressed situationship of your life",              m:"MVP: Most Valuable Partner",                             k:"He'll draw the foul. Two shots." },
+  12: { f:"Skinny legend behavior",                               m:"Unicorn husband, literally one of one",                  k:"OKC's insurance adjusters are furious" },
+  13: { f:"Close encounter of the best kind",                     m:"Your kids will be 7'5\" and fluent in French",           k:"Rejected. Get that outta here." },
+  14: { f:"Fastest fling in the West",                            m:"Swift, loyal, literally named Fox",                      k:"He was gone before you finished deciding" },
+  15: { f:"Certified aura",                                       m:"You're marrying the face of the league",                 k:"Man said 'that's crazy' and moved on" },
+  16: { f:"The Stifle Tower falls for you",                       m:"Four rings (DPOY, not wedding)",                         k:"Draymond finally has an alibi" },
+  17: { f:"Griddy into your heart",                               m:"12 might be your lucky number",                          k:"Suspended from your life indefinitely" },
+  18: { f:"Block Panther energy",                                 m:"Trip Dub? Triple the commitment",                        k:"That's his sixth foul anyway" },
+  19: { f:"Book him. Immediately.",                               m:"The Suns' franchise player and now yours",               k:"70 points and it still wasn't enough" },
+  20: { f:"Street clothes, but make it date night",               m:"Day-to-day, like his availability",                      k:"Load management, permanent edition" },
+  21: { f:"The chemistry is real, unlike the globe",              m:"Deep conversations. SO many deep conversations.",        k:"He's questioning the official narrative of this" },
+  22: { f:"Boat date. Non-negotiable.",                           m:"You, him, Rocco, and the open sea",                      k:"Game 6 Klay will haunt you" },
+  23: { f:"Easy — he's 19, this is a coffee date ☕",             m:"Locking in the #1 pick early",                           k:"The entire state of Maine will never forgive you" },
+  24: { f:"Board man gets dates",                                 m:"A quiet, extremely efficient marriage",                  k:"He didn't even change expression" },
+  25: { f:"He's stepping back from commitment anyway",            m:"He'll request a trade by February",                      k:"Daryl Morey has been notified" },
+  26: { f:"Dame Time is date time",                               m:"Loyalty like nobody else in the league",                 k:"He'll drop 50 on your memory" },
+  27: { f:"A force of nature, briefly",                           m:"Hope you love New Orleans cooking",                      k:"The medical staff got there first" },
+  28: { f:"Poole party of two",                                   m:"A four-year, fully guaranteed commitment",               k:"Draymond already tried this" },
+  29: { f:"Why not?",                                             m:"Triple-double: you, him, and his outfits",               k:"He took that personally" },
+  30: { f:"First option, every possession",                       m:"You and Deuce come as a package deal",                   k:"Boston sports radio is in shambles" },
+  31: { f:"$304 million of rizz",                                 m:"You're marrying a certified genius, just ask him",       k:"He'll build a whole city to spite you" },
+  32: { f:"Short kings win championships",                        m:"The captain the Garden deserves",                        k:"The Knicks group chat riots at dawn" },
+  33: { f:"A big softie, literally",                              m:"Wedding at MSG, Pat Bev not invited",                    k:"Minnesota already broke his heart once" },
+  34: { f:"Trust the process, skip the small talk",               m:"The Process becomes The Progress",                       k:"Status: questionable (knee, heart, everything)" },
+  35: { f:"Fastest yes of your life",                             m:"The nicest man in the league said I do",                 k:"Even the refs are booing you" },
+  36: { f:"Podcast P has a new episode topic",                    m:"Playoff P attends the wedding (maybe)",                  k:"He'll break down the film on Podcast P" },
+  37: { f:"Smoothie date. He's ordering 51 of them.",             m:"Family man. Immediate green flag.",                      k:"It's not a failure, it's steps to success" },
+  38: { f:"Caught in Spida's web",                                m:"45 reasons to say yes",                                  k:"Cleveland can't have nice things" },
+  39: { f:"The Detroit renaissance includes your love life",      m:"Restoring the roar and your faith in men",               k:"Detroit vs. Everybody. Especially you." },
+  40: { f:"He'll celebrate before it's official",                 m:"In this house we love Tyrese Haliburton",                k:"The most efficient heartbreak in the league" },
+  41: { f:"Italian leather jacket energy",                        m:"Building a dynasty in Orlando",                          k:"The Magic just cannot have it all" },
+  42: { f:"He guards 1 through 5, and your heart",                m:"Heat culture: unconditional commitment",                 k:"Spo already drew up the revenge play" },
+  43: { f:"Boy Wonder, you know the vibes",                       m:"A whole aesthetic. The hair alone.",                     k:"He just dropped a diss track about you" },
+  44: { f:"Ice Trae melts for you",                               m:"He silenced the Garden but said yes to you",             k:"He'll hit a logo three and bow at your funeral" },
+  45: { f:"1 of 1, certified",                                    m:"The Ball family group chat awaits",                      k:"LaVar is holding a press conference" },
+  46: { f:"Toronto's golden retriever boyfriend",                 m:"The entire future of Canada said yes",                   k:"Drake just wrote a song about it" },
+  47: { f:"Nordic god summer fling",                              m:"Move to Salt Lake, embrace the quiet life",              k:"Finland has entered the chat" },
+  48: { f:"Wine tastings and midrange jumpers",                   m:"The most articulate vows ever spoken",                   k:"The players' union will hear about this" },
+  49: { f:"He'll overshare about it on the podcast",              m:"You'll learn his take on everything, eventually",        k:"New podcast episode: 'So I Got Voted Out'" },
+  50: { f:"Bulls fans' only joy right now",                       m:"The hair care budget just doubled",                      k:"Chicago cannot lose him too" },
 };
 
 // ── Storage ─────────────────────────────────────────────────────
-// API_BASE: set to "/api/f1" for the /f1 subpath deployment,
-// or to a full URL (e.g. "https://www.fmkify.com/api/f1") during local dev.
-const API_BASE = "/api/f1";
+// API_BASE: set to "/api/nba" for the /nba subpath deployment,
+// or to a full URL (e.g. "https://www.fmkify.com/api/nba") during local dev.
+const API_BASE = "/api/nba";
 
 function emptyTallies() {
-  const t = {}; DRIVERS.forEach(d => { t[d.id] = {f:0,m:0,k:0}; });
+  const t = {}; PLAYERS.forEach(p => { t[p.id] = {f:0,m:0,k:0}; });
   return { tallies:t, totalVotes:0 };
 }
 
@@ -139,8 +231,8 @@ async function recordVote(vote, token) {
 }
 
 function randomTrio() {
-  // Fisher-Yates shuffle — guarantees uniform distribution across all drivers
-  const arr = [...DRIVERS];
+  // Fisher-Yates shuffle — guarantees uniform distribution across all players
+  const arr = [...PLAYERS];
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [arr[i], arr[j]] = [arr[j], arr[i]];
@@ -184,14 +276,14 @@ function useIsMobile() {
   return m;
 }
 
-// ── Driver Card ─────────────────────────────────────────────────
-function DriverCard({driver:d,choice,onAssign,dealDelay,dealing,pulseId,rejectedId,dropHover,onDragOver,onDragLeave,cardRefs,isMobile,activeBadge}) {
-  const tc = TC[d.team]||"#FF6B9D";
+// ── Player Card ─────────────────────────────────────────────────
+function PlayerCard({player:p,choice,onAssign,dealDelay,dealing,pulseId,rejectedId,dropHover,onDragOver,onDragLeave,cardRefs,isMobile,activeBadge}) {
+  const tc = TC[p.team]||"#FF6B9D";
   const [imgOk,setImgOk] = useState(false);
   const [imgErr,setImgErr] = useState(false);
   let cls = "fmk-card";
   if (dealing) cls+=" dealing"; if (choice) cls+=" sel-"+choice;
-  if (pulseId===d.id) cls+=" pulse"; if (rejectedId===d.id) cls+=" rejected"; if (dropHover===d.id) cls+=" drop-hover";
+  if (pulseId===p.id) cls+=" pulse"; if (rejectedId===p.id) cls+=" rejected"; if (dropHover===p.id) cls+=" drop-hover";
   if (activeBadge&&!choice) cls+=" targetable";
   const stampE = choice==='f'?'🔥':choice==='m'?'💍':choice==='k'?'💀':'';
   const stampL = choice==='f'?'F':choice==='m'?'M':choice==='k'?'K':'';
@@ -201,34 +293,34 @@ function DriverCard({driver:d,choice,onAssign,dealDelay,dealing,pulseId,rejected
 
   const handleCardClick = (e) => {
     // If a badge is active and this card doesn't have a choice yet, assign it
-    if (activeBadge && !choice) { onAssign(d.id, activeBadge); return; }
+    if (activeBadge && !choice) { onAssign(p.id, activeBadge); return; }
     // If a badge is active and this card already has a choice, reassign (swap)
-    if (activeBadge) { onAssign(d.id, activeBadge); return; }
+    if (activeBadge) { onAssign(p.id, activeBadge); return; }
   };
 
   return (
-    <div className={cls} style={style} ref={el=>{if(cardRefs)cardRefs.current[d.id]=el;}}
+    <div className={cls} style={style} ref={el=>{if(cardRefs)cardRefs.current[p.id]=el;}}
       onClick={handleCardClick}
-      onDragOver={e=>{e.preventDefault();onDragOver?.(d.id);}} onDragLeave={()=>onDragLeave?.()}
-      onDrop={e=>{e.preventDefault();const c=e.dataTransfer.getData("text/plain");if(c)onAssign(d.id,c);onDragLeave?.();}}>
+      onDragOver={e=>{e.preventDefault();onDragOver?.(p.id);}} onDragLeave={()=>onDragLeave?.()}
+      onDrop={e=>{e.preventDefault();const c=e.dataTransfer.getData("text/plain");if(c)onAssign(p.id,c);onDragLeave?.();}}>
       <div className={"fmk-stamp"+(choice?" show "+choice+"-stamp":"")}>
         <span>{stampE}</span><span className="stamp-txt">{stampL}</span>
       </div>
       {choice==='m' && <div className="fmk-shimmer"/>}
       <div className="fmk-banner">
         <div className="team-bg" style={{background:`linear-gradient(160deg,${tc} 0%,${tc}44 100%)`}}/>
-        {DRIVER_PHOTOS[d.id]&&!imgErr && <img src={DRIVER_PHOTOS[d.id]} alt={d.name} loading="lazy" className="driver-photo" onLoad={()=>setImgOk(true)} onError={()=>setImgErr(true)} style={{opacity:imgOk?1:0}}/>}
-        <div className="fmk-num" style={{opacity:imgOk&&!imgErr?0:1}}>#{d.num}</div>
-        {!isMobile && <div className="helm-emoji" style={{opacity:imgOk&&!imgErr?.25:1}}>{HELMS[d.id%HELMS.length]}</div>}
+        {PLAYER_PHOTOS[p.id]&&!imgErr && <img src={PLAYER_PHOTOS[p.id]} alt={p.name} loading="lazy" className="player-photo" onLoad={()=>setImgOk(true)} onError={()=>setImgErr(true)} style={{opacity:imgOk?1:0}}/>}
+        <div className="fmk-num" style={{opacity:imgOk&&!imgErr?0:1}}>#{p.num}</div>
+        {!isMobile && <div className="helm-emoji" style={{opacity:imgOk&&!imgErr?.25:1}}>{HOOPS[p.id%HOOPS.length]}</div>}
       </div>
       <div className="fmk-info">
         <div className="info-text">
-          <div className="driver-name">{d.name}</div>
-          {!isMobile && <div className="team-name" style={{color:tc}}><span className="team-dot" style={{background:tc}}/>{d.team}</div>}
+          <div className="player-name">{p.name}</div>
+          {!isMobile && <div className="team-name" style={{color:tc}}><span className="team-dot" style={{background:tc}}/>{p.team}</div>}
         </div>
         <div className="fmk-btns">
           {[{c:'f',e:'🔥',l:'F'},{c:'m',e:'💍',l:'M'},{c:'k',e:'💀',l:'K'}].map(b=>(
-            <button key={b.c} className={`fmk-btn ${b.c}-btn${choice===b.c?' active':''}`} onClick={()=>onAssign(d.id,b.c)}>
+            <button key={b.c} className={`fmk-btn ${b.c}-btn${choice===b.c?' active':''}`} onClick={()=>onAssign(p.id,b.c)}>
               <span className="btn-emoji">{b.e}</span><span className="btn-lbl">{b.l}</span>
             </button>
           ))}
@@ -267,14 +359,14 @@ function GameView({onShowRankings,globalData,onVote}) {
   useEffect(()=>{setDealing(true);const t=setTimeout(()=>setDealing(false),700);return()=>clearTimeout(t);},[trio]);
   useEffect(()=>{ghostRef.current=ghostDrag;},[ghostDrag]);
 
-  const allDone=useCallback(()=>{const v=trio.map(d=>sels[d.id]).filter(Boolean);return v.includes('f')&&v.includes('m')&&v.includes('k');},[trio,sels]);
+  const allDone=useCallback(()=>{const v=trio.map(p=>sels[p.id]).filter(Boolean);return v.includes('f')&&v.includes('m')&&v.includes('k');},[trio,sels]);
 
-  const assign=useCallback((did,ch)=>{
+  const assign=useCallback((pid,ch)=>{
     if(busyRef.current)return;
     setSels(prev=>{const next={};let old=null;
-      Object.keys(prev).forEach(id=>{const n=parseInt(id);if(prev[id]===ch&&n!==did){old=n;}else if(n!==did){next[id]=prev[id];}});
-      next[did]=ch;if(old){setRejectedId(old);setTimeout(()=>setRejectedId(null),450);}return next;});
-    setPulseId(did);setTimeout(()=>setPulseId(null),400);
+      Object.keys(prev).forEach(id=>{const n=parseInt(id);if(prev[id]===ch&&n!==pid){old=n;}else if(n!==pid){next[id]=prev[id];}});
+      next[pid]=ch;if(old){setRejectedId(old);setTimeout(()=>setRejectedId(null),450);}return next;});
+    setPulseId(pid);setTimeout(()=>setPulseId(null),400);
     setActiveBadge(null);
   },[]);
 
@@ -311,10 +403,10 @@ function GameView({onShowRankings,globalData,onVote}) {
     clearTimeout(safetyTimer);
     // Build quips from current selections before clearing
     const quips = Object.entries(sels).map(([id,ch])=>{
-      const d = trio.find(dr=>dr.id===parseInt(id));
-      const q = QUIPS[d.id]?.[ch] || "";
+      const p = trio.find(pl=>pl.id===parseInt(id));
+      const q = QUIPS[p.id]?.[ch] || "";
       const emoji = ch==='f'?'🔥':ch==='m'?'💍':'💀';
-      return { name:d.name, choice:ch, emoji, quip:q };
+      return { name:p.name, choice:ch, emoji, quip:q };
     });
     setVoteQuips(quips);
     const nextRound = round + 1;
@@ -333,24 +425,24 @@ function GameView({onShowRankings,globalData,onVote}) {
 
   const shuffle=()=>{if(!busyRef.current){setTrio(randomTrio());setSels({});setActiveBadge(null);}};
   const clearAll=()=>{setSels({});setActiveBadge(null);};
-  const nameForChoice=(c)=>{const d=trio.find(dr=>sels[dr.id]===c);return d?d.name.split(' ').pop():null;};
+  const nameForChoice=(c)=>{const p=trio.find(pl=>sels[pl.id]===c);return p?p.name.split(' ').pop():null;};
   const done=allDone();
   const usedChoices={}; Object.values(sels).forEach(c=>{usedChoices[c]=true;});
 
   const onTouchStart=useCallback((ch,e)=>{e.preventDefault();const t=e.touches[0];setGhostDrag({choice:ch,x:t.clientX,y:t.clientY});},[]);
-  const onTouchMove=useCallback((e)=>{const g=ghostRef.current;if(!g)return;e.preventDefault();const t=e.touches[0];setGhostDrag({choice:g.choice,x:t.clientX,y:t.clientY});let hov=null;trio.forEach(d=>{const el=cardRefs.current[d.id];if(el){const r=el.getBoundingClientRect();if(t.clientX>=r.left&&t.clientX<=r.right&&t.clientY>=r.top&&t.clientY<=r.bottom)hov=d.id;}});setDropHover(hov);},[trio]);
+  const onTouchMove=useCallback((e)=>{const g=ghostRef.current;if(!g)return;e.preventDefault();const t=e.touches[0];setGhostDrag({choice:g.choice,x:t.clientX,y:t.clientY});let hov=null;trio.forEach(p=>{const el=cardRefs.current[p.id];if(el){const r=el.getBoundingClientRect();if(t.clientX>=r.left&&t.clientX<=r.right&&t.clientY>=r.top&&t.clientY<=r.bottom)hov=p.id;}});setDropHover(hov);},[trio]);
   const onTouchEnd=useCallback(()=>{const g=ghostRef.current;if(!g)return;if(dropHover)assign(dropHover,g.choice);setGhostDrag(null);setDropHover(null);},[dropHover,assign]);
 
   return (<>
     <div className="fmk-app">
       <div className="fmk-topbar">
-        <div className="fmk-logo">🏎️ <span className="accent">FMKify</span></div>
+        <div className="fmk-logo">🏀 <span className="accent">FMKify</span></div>
         <div className="round-pill">Round {round}</div>
         <button className="btn-icon" onClick={onShowRankings}><span>📊</span><span className="btn-label">Rankings</span></button>
       </div>
       <div className="fmk-instruct">
-        <div style={{fontSize:'1rem',fontWeight:700,color:'rgba(255,255,255,.65)',marginBottom:'.1rem'}}>2026 Grid Edition</div>
-        <div style={{fontSize:'.78rem',color:'rgba(255,255,255,.3)',marginBottom:'.3rem',fontStyle:'italic'}}>22 drivers. 3 at a time. No wrong answers. Some questionable ones.</div>
+        <div style={{fontSize:'1rem',fontWeight:700,color:'rgba(255,255,255,.65)',marginBottom:'.1rem'}}>NBA Edition</div>
+        <div style={{fontSize:'.78rem',color:'rgba(255,255,255,.3)',marginBottom:'.3rem',fontStyle:'italic'}}>50 players. 3 at a time. No wrong answers. Some flagrant ones.</div>
         Drag or tap <b style={{color:'#ff1744'}}>F🔥</b>{' '}<b style={{color:'#2979ff'}}>M💍</b>{' '}<b style={{color:'#aa00ff'}}>K💀</b> … you know the rules.
       </div>
 
@@ -368,7 +460,7 @@ function GameView({onShowRankings,globalData,onVote}) {
       </div>}
 
       <div className="fmk-cards-grid">
-        {trio.map((d,i)=><DriverCard key={d.id} driver={d} choice={sels[d.id]||null} onAssign={assign} dealDelay={i*.1} dealing={dealing} pulseId={pulseId} rejectedId={rejectedId} dropHover={dropHover} onDragOver={id=>setDropHover(id)} onDragLeave={()=>setDropHover(null)} cardRefs={cardRefs} isMobile={isMobile} activeBadge={activeBadge}/>)}
+        {trio.map((p,i)=><PlayerCard key={p.id} player={p} choice={sels[p.id]||null} onAssign={assign} dealDelay={i*.1} dealing={dealing} pulseId={pulseId} rejectedId={rejectedId} dropHover={dropHover} onDragOver={id=>setDropHover(id)} onDragLeave={()=>setDropHover(null)} cardRefs={cardRefs} isMobile={isMobile} activeBadge={activeBadge}/>)}
       </div>
 
       <div className="fmk-action-row">
@@ -468,9 +560,9 @@ function RankingsView({onBack,globalData}) {
   const isSuperlative=SUPERLATIVES.some(s=>s.key===sortBy);
   const activeSuperlative=SUPERLATIVES.find(s=>s.key===sortBy);
 
-  const rankings=DRIVERS.map(d=>{
-    const t=tallies[d.id]||{f:0,m:0,k:0};
-    const row={driver:d,f:t.f,m:t.m,k:t.k};
+  const rankings=PLAYERS.map(p=>{
+    const t=tallies[p.id]||{f:0,m:0,k:0};
+    const row={player:p,f:t.f,m:t.m,k:t.k};
     row.score=computeScore(row,sortBy,usePercent);
     return row;
   }).sort((a,b)=>b.score-a.score);
@@ -480,7 +572,7 @@ function RankingsView({onBack,globalData}) {
   return (
     <div className="fmk-rankings-shell">
       <div className="fmk-topbar">
-        <div className="fmk-logo" onClick={onBack} style={{cursor:'pointer'}}>🏆 <span className="accent">FMKify</span> F1 Rankings</div><div/>
+        <div className="fmk-logo" onClick={onBack} style={{cursor:'pointer'}}>🏆 <span className="accent">FMKify</span> NBA Rankings</div><div/>
         <button className="btn-icon" onClick={onBack}><span>←</span><span className="btn-label">Back</span></button>
       </div>
       <div className="rank-header"><div className="rank-stat">{total.toLocaleString()}</div><div className="rank-stat-label">community votes</div></div>
@@ -521,11 +613,11 @@ function RankingsView({onBack,globalData}) {
       </div>}
 
       <div className="rankings-scroll">
-        {total>0?rankings.map((st,i)=>{const tc=TC[st.driver.team]||"#888";return(
-          <div key={st.driver.id} className={`rank-card${i<3?' top':''}`}>
+        {total>0?rankings.map((st,i)=>{const tc=TC[st.player.team]||"#888";return(
+          <div key={st.player.id} className={`rank-card${i<3?' top':''}`}>
             <div className="rank-pos">{medal(i)}</div>
             <div className="r-stripe" style={{background:tc}}/>
-            <div className="r-info"><div className="r-name">{st.driver.name}</div><div className="r-team">{st.driver.team}</div></div>
+            <div className="r-info"><div className="r-name">{st.player.name}</div><div className="r-team">{st.player.team}</div></div>
             {isSuperlative ? (
               <div className="rank-stats">
                 <span className="stat-pip ratio-pip">{formatRatio(st.score,sortBy)}</span>
@@ -545,7 +637,7 @@ function RankingsView({onBack,globalData}) {
               </div>
             )}
           </div>);})
-        :<div className="empty-msg"><div className="big">🏁</div><div>No votes yet — go play!</div></div>}
+        :<div className="empty-msg"><div className="big">🏀</div><div>No votes yet — go play!</div></div>}
       </div>
       <Footer/>
       <div className="back-bar"><button className="btn-back" onClick={onBack}>← Back to Game</button></div>
@@ -562,7 +654,7 @@ function Footer() {
         <span className="footer-sep">·</span>
         <a href="mailto:admin@fmkify.com" className="footer-link">admin@fmkify.com</a>
       </div>
-      <a href="/nba/" className="footer-cta">🏀 New: FMKify NBA is live — go judge the league →</a>
+      <a href="/f1/" className="footer-cta">🏎️ Also live: FMKify F1 — judge the 2026 grid →</a>
     </div>
   );
 }
@@ -592,7 +684,7 @@ export default function App() {
   },[]);
 
   const navigateTo = useCallback((target) => {
-    const path = target === "rankings" ? "/f1/rankings/" : "/f1/";
+    const path = target === "rankings" ? "/nba/rankings/" : "/nba/";
     window.history.pushState(null, "", path);
     setView(target);
   },[]);
@@ -630,7 +722,7 @@ export default function App() {
     <div className="fmk-root">
       {loading
         ? <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100%',fontFamily:"'Fredoka',sans-serif"}}>
-            <div style={{textAlign:'center'}}><div style={{fontSize:'3rem',animation:'fmk-bob 1.5s ease-in-out infinite'}}>🏎️</div>
+            <div style={{textAlign:'center'}}><div style={{fontSize:'3rem',animation:'fmk-bob 1.5s ease-in-out infinite'}}>🏀</div>
             <div style={{fontSize:'1.2rem',fontWeight:700,color:'rgba(255,255,255,.6)',marginTop:'1rem'}}>Loading FMKify...</div></div></div>
         : view==="game"
           ? <GameView onShowRankings={()=>navigateTo("rankings")} globalData={globalData} onVote={handleVote}/>
@@ -675,10 +767,10 @@ html,body{margin:0;padding:0;min-height:100%;background:linear-gradient(155deg,#
 .fmk-banner{display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
 .fmk-banner .team-bg{position:absolute;inset:0;opacity:.85}
 .fmk-banner .fmk-num{position:absolute;font-size:clamp(4rem,12vw,7rem);font-weight:700;color:rgba(255,255,255,.18);line-height:1;transition:opacity .4s;z-index:1}
-.fmk-banner .driver-photo{position:relative;z-index:2;width:100%;display:block;transition:opacity .5s;filter:drop-shadow(0 6px 20px rgba(0,0,0,.5))}
+.fmk-banner .player-photo{position:relative;z-index:2;width:100%;display:block;transition:opacity .5s;filter:drop-shadow(0 6px 20px rgba(0,0,0,.5))}
 .fmk-banner .helm-emoji{position:absolute;font-size:clamp(2.5rem,7vw,3.5rem);bottom:10%;right:8%;filter:drop-shadow(0 4px 12px rgba(0,0,0,.3));transition:opacity .4s;z-index:3}
 .fmk-info{padding:.7rem 1.2rem .6rem;background:linear-gradient(to top,rgba(25,12,22,.98) 55%,rgba(25,12,22,.82))}
-.driver-name{font-size:clamp(1.2rem,3.5vw,1.5rem);font-weight:700;color:#fff;line-height:1.15;margin-bottom:.1rem}
+.player-name{font-size:clamp(1.2rem,3.5vw,1.5rem);font-weight:700;color:#fff;line-height:1.15;margin-bottom:.1rem}
 .team-name{font-size:.8rem;font-weight:600;display:flex;align-items:center;gap:.4rem;margin-bottom:.6rem}
 .team-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
 .fmk-btns{display:flex;gap:.5rem;justify-content:center;padding:.1rem 0 .3rem}
@@ -800,11 +892,11 @@ html,body{margin:0;padding:0;min-height:100%;background:linear-gradient(155deg,#
   .fmk-cards-grid{flex-direction:column;gap:.6rem;padding:.3rem 1rem;justify-content:flex-start;align-items:stretch;flex:none}
   .fmk-card{flex:0 0 auto;flex-direction:column;max-width:100%;border-radius:var(--radius-sm);min-height:0}
   .fmk-card .fmk-banner{width:100%;min-height:unset;aspect-ratio:4/3}
-  .fmk-card .fmk-banner .driver-photo{width:100%;height:100%;object-fit:cover;object-position:center top}
+  .fmk-card .fmk-banner .player-photo{width:100%;height:100%;object-fit:cover;object-position:center top}
   .fmk-card .fmk-banner .fmk-num{font-size:3rem}
   .fmk-card .fmk-banner .helm-emoji{display:none}
   .fmk-card .fmk-info{padding:.6rem .8rem .5rem;display:flex;align-items:center;gap:.5rem;background:linear-gradient(to top,rgba(25,12,22,.98) 55%,rgba(25,12,22,.82))}
-  .fmk-card .driver-name{font-size:1.1rem;flex:1}.fmk-card .team-name{display:none}
+  .fmk-card .player-name{font-size:1.1rem;flex:1}.fmk-card .team-name{display:none}
   .fmk-btns{flex-direction:row;gap:.4rem;padding:0;flex-shrink:0}
   .fmk-btn{height:42px;padding:0 .7rem;font-size:1.05rem}.fmk-btn .btn-lbl{font-size:.72rem}
   .fmk-stamp{font-size:2.5rem;top:40%}.stamp-txt{font-size:1.5rem}
