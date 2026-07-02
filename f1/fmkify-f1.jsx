@@ -480,7 +480,7 @@ function RankingsView({onBack,globalData}) {
   return (
     <div className="fmk-rankings-shell">
       <div className="fmk-topbar">
-        <div className="fmk-logo" onClick={()=>{window.location.href="/";}} style={{cursor:'pointer'}} title="FMKify home">🏆 <span className="accent">FMKify</span> F1 Rankings</div><div/>
+        <div className="fmk-logo"><span onClick={()=>{window.location.href="/";}} style={{cursor:'pointer'}} title="FMKify home">🏆 <span className="accent">FMKify</span></span><span onClick={onBack} style={{cursor:'pointer'}} title="Back to game"> F1 Rankings</span></div><div/>
         <button className="btn-icon" onClick={onBack}><span>←</span><span className="btn-label">Back</span></button>
       </div>
       <div className="rank-header"><div className="rank-stat">{total.toLocaleString()}</div><div className="rank-stat-label">community votes</div></div>
