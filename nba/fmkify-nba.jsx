@@ -443,7 +443,7 @@ function GameView({onShowRankings,globalData,onVote}) {
   return (<>
     <div className="fmk-app">
       <div className="fmk-topbar">
-        <div className="fmk-logo">🏀 <span className="accent">FMKify</span></div>
+        <div className="fmk-logo" onClick={()=>{window.location.href="/";}} style={{cursor:'pointer'}} title="FMKify home">🏀 <span className="accent">FMKify</span></div>
         <div className="round-pill">Round {round}</div>
         <button className="btn-icon" onClick={onShowRankings}><span>📊</span><span className="btn-label">Rankings</span></button>
       </div>
@@ -579,7 +579,7 @@ function RankingsView({onBack,globalData}) {
   return (
     <div className="fmk-rankings-shell">
       <div className="fmk-topbar">
-        <div className="fmk-logo" onClick={onBack} style={{cursor:'pointer'}}>🏆 <span className="accent">FMKify</span> NBA Rankings</div><div/>
+        <div className="fmk-logo" onClick={()=>{window.location.href="/";}} style={{cursor:'pointer'}} title="FMKify home">🏆 <span className="accent">FMKify</span> NBA Rankings</div><div/>
         <button className="btn-icon" onClick={onBack}><span>←</span><span className="btn-label">Back</span></button>
       </div>
       <div className="rank-header"><div className="rank-stat">{total.toLocaleString()}</div><div className="rank-stat-label">community votes</div></div>
