@@ -44,7 +44,7 @@ export const TOKEN_RATE_LIMIT_TTL = 5;  // 5 s between new tokens per IP
 export const TALLIES_KEY = "f1:tallies"; // single JSON key for all vote data
 
 // NBA game — same mechanics, separate roster + Redis namespace.
-export const NBA_PLAYER_COUNT = 50;
+export const NBA_PLAYER_COUNT = 52;
 export const NBA_TALLIES_KEY = "nba:tallies";
 export const NBA_SESSION_PREFIX = "nba:session:";
 export const NBA_IP_LIMIT_PREFIX = "nba:ip-limit:";

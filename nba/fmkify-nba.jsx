@@ -51,6 +51,9 @@ const PLAYERS = [
   { id:48, name:"CJ McCollum",             team:"Wizards",       num:3  },
   { id:49, name:"Michael Porter Jr.",      team:"Nets",          num:1  },
   { id:50, name:"Coby White",              team:"Bulls",         num:0  },
+  // 51+ appended after launch — ids are the API contract, never renumber.
+  { id:51, name:"Kristaps Porziņģis",      team:"Hawks",         num:8  },
+  { id:52, name:"DeMar DeRozan",           team:"Kings",         num:10 },
 ];
 
 // Team colors — brand hexes, lightened where the brand color is too dark
@@ -120,6 +123,8 @@ const PLAYER_PHOTOS = {
   48:`${NBA_CDN}/203468.png`,
   49:`${NBA_CDN}/1629008.png`,
   50:`${NBA_CDN}/1629632.png`,
+  51:`${NBA_CDN}/204001.png`,
+  52:`${NBA_CDN}/201942.png`,
 };
 
 const HOOPS = ["🏀","🔥","👟","🎯","💪","🏆","⭐","🚀","🦅","💫","🌪️"];
@@ -176,6 +181,8 @@ const QUIPS = {
   48: { f:"Wine tastings and midrange jumpers",                   m:"The most articulate vows ever spoken",                   k:"The players' union will hear about this" },
   49: { f:"He'll overshare about it on the podcast",              m:"You'll learn his take on everything, eventually",        k:"New podcast episode: 'So I Got Voted Out'" },
   50: { f:"Bulls fans' only joy right now",                       m:"The hair care budget just doubled",                      k:"Chicago cannot lose him too" },
+  51: { f:"Unicorn sightings are supposed to be brief",           m:"A Latvian fairy tale wedding",                           k:"The injury report saw this coming" },
+  52: { f:"That mid-range pull-up hits different",                m:"A dependable 20 a night, forever",                       k:"Toronto already knows this exact pain" },
 };
 
 // ── Storage ─────────────────────────────────────────────────────
@@ -442,7 +449,7 @@ function GameView({onShowRankings,globalData,onVote}) {
       </div>
       <div className="fmk-instruct">
         <div style={{fontSize:'1rem',fontWeight:700,color:'rgba(255,255,255,.65)',marginBottom:'.1rem'}}>NBA Edition</div>
-        <div style={{fontSize:'.78rem',color:'rgba(255,255,255,.3)',marginBottom:'.3rem',fontStyle:'italic'}}>50 players. 3 at a time. No wrong answers. Some flagrant ones.</div>
+        <div style={{fontSize:'.78rem',color:'rgba(255,255,255,.3)',marginBottom:'.3rem',fontStyle:'italic'}}>52 players. 3 at a time. No wrong answers. Some flagrant ones.</div>
         Drag or tap <b style={{color:'#ff1744'}}>F🔥</b>{' '}<b style={{color:'#2979ff'}}>M💍</b>{' '}<b style={{color:'#aa00ff'}}>K💀</b> … you know the rules.
       </div>
 

@@ -14,7 +14,7 @@ FMKify is a "F*ck, Marry, Kill" voting game platform. Users are shown 3 random p
 Two games are live:
 
 - **FMKify F1** (`/f1/`) — the 2026 Formula 1 grid (22 drivers). The original game.
-- **FMKify NBA** (`/nba/`) — 50 high-profile NBA players, at least one per team.
+- **FMKify NBA** (`/nba/`) — 52 high-profile NBA players, at least one per team.
   A near-clone of the F1 game (same mechanics, quips, rankings, superlatives)
   with its own roster, team colors, and Redis namespace.
 
@@ -286,13 +286,15 @@ The client's `API_BASE` constant (currently `"/api/f1"`) is prepended to all fet
 
 Structural clone of the F1 client with a different dataset. Differences that matter:
 
-- **Roster:** 50 players, `PLAYERS` array (id, name, team, jersey num). At least
-  one player per NBA team. Ids 1–50 are the API contract (`NBA_PLAYER_COUNT`).
+- **Roster:** 52 players, `PLAYERS` array (id, name, team, jersey num). At least
+  one player per NBA team. Ids 1–52 are the API contract (`NBA_PLAYER_COUNT`);
+  new players are appended with new ids — never renumber existing ids, they are
+  keyed into quips, photos, and stored tallies.
 - **Photos:** official NBA headshot CDN —
   `https://cdn.nba.com/headshots/nba/latest/1040x760/{personId}.png`. These are
   transparent PNGs, face-centered, ~4:3, so they drop into the same card layout
   the F1 Cloudinary crops used (no extra CSS cropping, same rule as F1). The
-  `PLAYER_PHOTOS` map keys player id → nba.com person id URL. All 50 URLs were
+  `PLAYER_PHOTOS` map keys player id → nba.com person id URL. All URLs were
   verified live at build time.
 - **Team colors:** `TC` maps all 30 team names to brand hexes, lightened where
   the brand color is too dark to read on the near-black card background.
