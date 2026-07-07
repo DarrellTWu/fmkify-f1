@@ -14,14 +14,12 @@
 - `team` is the franchise bucket used for card colors (The Bachelor /
   The Bachelorette / Paradise / Host); `num` is their season number, shown as
   the "S{num}" fallback when a photo fails; `sub` is the display line.
-- Photos are hotlinked from the Bachelor Nation fandom wiki CDN
-  (`static.wikia.nocookie.net/bachelor-nation/...`) — every URL was verified
-  live at build time. The CDN 404s any request carrying an external
-  `Referer`, so the card `<img>` uses `referrerPolicy="no-referrer"`
-  (load-bearing — don't remove). They're mixed-aspect promo portraits, so unlike F1/NBA
-  the card CSS crops them (`aspect-ratio:4/3` + `object-fit:cover`,
-  `object-position:center 12%` — faces sit in the top third of every shot).
-  To switch to self-hosted images later, update `CAST_PHOTOS`.
+- Photos are self-hosted WebPs in `bachelor/img/` (sourced from the Bachelor
+  Nation fandom wiki; hotlinking its CDN proved unreliable — Referer-based
+  hotlink protection plus intermittent thumbnailer 404s). They're mixed-aspect
+  promo portraits, so unlike F1/NBA the card CSS crops them
+  (`aspect-ratio:4/3` + `object-fit:cover`, `object-position:center 12%` —
+  faces sit in the top third of every shot).
 - Ids 1–20 are the API contract (`BACHELOR_COUNT`); new cast members are
   appended with new ids — never renumber existing ids.
 

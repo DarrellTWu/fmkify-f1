@@ -33,30 +33,32 @@ const TC = {
   "Host":"#FFD166",
 };
 
-// Bachelor Nation fandom wiki CDN — promo portraits, verified live at build
-// time. Mixed aspect ratios, so the card CSS crops to 4:3 (object-fit:cover).
-const BN_CDN = "https://static.wikia.nocookie.net/bachelor-nation/images";
+// Self-hosted promo portraits (bachelor/img/, ~600px WebP), served same-origin
+// by Vercel. Originally sourced from the Bachelor Nation fandom wiki, but its
+// CDN 404s hotlinked thumbnails intermittently, so we host copies ourselves.
+// Mixed aspect ratios, so the card CSS crops to 4:3 (object-fit:cover).
+const IMG_BASE = "/bachelor/img";
 const CAST_PHOTOS = {
-  1:`${BN_CDN}/f/ff/Jesse_%28Bachelor_in_Paradise_10%29.jpg/revision/latest/scale-to-width-down/600?cb=20250616190428`,
-  2:`${BN_CDN}/e/ea/Jake_%28Bachelor_Pad_2%29.jpg/revision/latest/scale-to-width-down/600?cb=20160217184219`,
-  3:`${BN_CDN}/1/19/Brad_Womack.jpg/revision/latest/scale-to-width-down/600?cb=20241227000041`,
-  4:`${BN_CDN}/e/e1/Sean_Lowe.jpg/revision/latest/scale-to-width-down/600?cb=20160421144808`,
-  5:`${BN_CDN}/7/7b/Juan_Pablo_Galavis.jpg/revision/latest/scale-to-width-down/600?cb=20170131231713`,
-  6:`${BN_CDN}/6/65/Ben_Higgins_%28Winter_Games%29.jpg/revision/latest/scale-to-width-down/600?cb=20180206102853`,
-  7:`${BN_CDN}/3/3e/Nick_Viall_21.jpg/revision/latest/scale-to-width-down/600?cb=20170330025005`,
-  8:`${BN_CDN}/6/6c/Arie_%28Bachelorette_8%29.jpg/revision/latest?cb=20160215165410`,
-  9:`${BN_CDN}/b/be/Bachelor23-Promo2.jpg/revision/latest/scale-to-width-down/600?cb=20230904114129`,
-  10:`${BN_CDN}/a/a1/Bachelor24-Promo3.jpg/revision/latest/scale-to-width-down/600?cb=20191222112414`,
-  11:`${BN_CDN}/e/e3/Bachelor25-Promo2.jpg/revision/latest/scale-to-width-down/600?cb=20210927152530`,
-  12:`${BN_CDN}/1/19/Clayton26.webp/revision/latest/scale-to-width-down/600?cb=20220722092229`,
-  13:`${BN_CDN}/b/bb/Bachelor27-Promo4.jpg/revision/latest/scale-to-width-down/600?cb=20230122153629`,
-  14:`${BN_CDN}/0/0f/Bachelor28-Promo3.jpg/revision/latest/scale-to-width-down/600?cb=20240320014958`,
-  15:`${BN_CDN}/3/3d/Bachelor29-Promo2.jpg/revision/latest/scale-to-width-down/600?cb=20250116081033`,
-  16:`${BN_CDN}/7/71/Jordan_%28Bachelorette_12%29.jpg/revision/latest/scale-to-width-down/600?cb=20160513201717`,
-  17:`${BN_CDN}/e/ea/Wells_%28Bachelorette_12%29.jpg/revision/latest/scale-to-width-down/600?cb=20160513202118`,
-  18:`${BN_CDN}/7/76/Dean_Unglert_%28Winter_Games%29.jpg/revision/latest/scale-to-width-down/600?cb=20180206103648`,
-  19:`${BN_CDN}/e/e7/Tyler_C_%28Bachelorette_15%29.jpg/revision/latest/scale-to-width-down/600?cb=20190507195005`,
-  20:`${BN_CDN}/e/e0/Dale_%28Bachelor_in_Paradise_10%29.jpg/revision/latest/scale-to-width-down/600?cb=20250610190103`,
+  1:`${IMG_BASE}/jesse-palmer.webp`,
+  2:`${IMG_BASE}/jake-pavelka.webp`,
+  3:`${IMG_BASE}/brad-womack.webp`,
+  4:`${IMG_BASE}/sean-lowe.webp`,
+  5:`${IMG_BASE}/juan-pablo-galavis.webp`,
+  6:`${IMG_BASE}/ben-higgins.webp`,
+  7:`${IMG_BASE}/nick-viall.webp`,
+  8:`${IMG_BASE}/arie-luyendyk.webp`,
+  9:`${IMG_BASE}/colton-underwood.webp`,
+  10:`${IMG_BASE}/peter-weber.webp`,
+  11:`${IMG_BASE}/matt-james.webp`,
+  12:`${IMG_BASE}/clayton-echard.webp`,
+  13:`${IMG_BASE}/zach-shallcross.webp`,
+  14:`${IMG_BASE}/joey-graziadei.webp`,
+  15:`${IMG_BASE}/grant-ellis.webp`,
+  16:`${IMG_BASE}/jordan-rodgers.webp`,
+  17:`${IMG_BASE}/wells-adams.webp`,
+  18:`${IMG_BASE}/dean-unglert.webp`,
+  19:`${IMG_BASE}/tyler-cameron.webp`,
+  20:`${IMG_BASE}/dale-moss.webp`,
 };
 
 const ROSES = ["🌹","🥂","💌","🚁","🏝️","🕯️","✨","💐","🛥️","🍾","💋"];
@@ -216,8 +218,7 @@ function CastCard({star:p,choice,onAssign,dealDelay,dealing,pulseId,rejectedId,d
       {choice==='m' && <div className="fmk-shimmer"/>}
       <div className="fmk-banner">
         <div className="team-bg" style={{background:`linear-gradient(160deg,${tc} 0%,${tc}44 100%)`}}/>
-        {/* referrerPolicy is load-bearing: the fandom CDN 404s any request with an external Referer */}
-        {CAST_PHOTOS[p.id]&&!imgErr && <img src={CAST_PHOTOS[p.id]} alt={p.name} loading="lazy" referrerPolicy="no-referrer" className="player-photo" onLoad={()=>setImgOk(true)} onError={()=>setImgErr(true)} style={{opacity:imgOk?1:0}}/>}
+        {CAST_PHOTOS[p.id]&&!imgErr && <img src={CAST_PHOTOS[p.id]} alt={p.name} loading="lazy" className="player-photo" onLoad={()=>setImgOk(true)} onError={()=>setImgErr(true)} style={{opacity:imgOk?1:0}}/>}
         <div className="fmk-num" style={{opacity:imgOk&&!imgErr?0:1}}>S{p.num}</div>
         {!isMobile && <div className="helm-emoji" style={{opacity:imgOk&&!imgErr?0:1}}>{ROSES[p.id%ROSES.length]}</div>}
       </div>

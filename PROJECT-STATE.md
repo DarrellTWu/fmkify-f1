@@ -323,14 +323,13 @@ matter:
   "S{num}" in the photo fallback); `sub` is the flavor line shown where NBA
   shows the team name. Ids 1–20 are the API contract (`BACHELOR_COUNT`) —
   never renumber. See BACHELOR-ROSTER.md.
-- **Photos:** hotlinked from the Bachelor Nation fandom wiki CDN
-  (`static.wikia.nocookie.net/bachelor-nation/...`), verified live at build
-  time. **The CDN has Referer-based hotlink protection** — any request with
-  an external `Referer` header gets a 404, so the `<img>` tags carry
-  `referrerPolicy="no-referrer"`. Do not remove it; without it every portrait
-  404s in real browsers. Unlike F1 (Cloudinary face crops) and NBA (uniform
-  4:3 PNGs), these are mixed-aspect promo portraits, so this game's CSS
-  *does* crop:
+- **Photos:** self-hosted WebP portraits in `bachelor/img/` (~600px wide,
+  ~1.4 MB total), served same-origin by Vercel. Originally sourced from the
+  Bachelor Nation fandom wiki; hotlinking its CDN was tried first and failed —
+  it has Referer-based hotlink protection AND its thumbnailer 404s
+  intermittently per edge node, so copies live in the repo. Unlike F1
+  (Cloudinary face crops) and NBA (uniform 4:3 PNGs), these are mixed-aspect
+  promo portraits, so this game's CSS *does* crop:
   `.fmk-banner{aspect-ratio:4/3}` + `.player-photo{object-fit:cover;
   object-position:center 12%}` on desktop and mobile. Faces sit in the top
   third of every chosen shot, so the top-biased crop works for all 20.
