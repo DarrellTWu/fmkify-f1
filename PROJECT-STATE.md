@@ -11,12 +11,15 @@
 
 FMKify is a "F*ck, Marry, Kill" voting game platform. Users are shown 3 random people from a roster, assign F/M/K to each, and submit. Community-wide tallies are tracked and displayed on a rankings page.
 
-Two games are live:
+Three games are live:
 
 - **FMKify F1** (`/f1/`) — the 2026 Formula 1 grid (22 drivers). The original game.
 - **FMKify NBA** (`/nba/`) — 52 high-profile NBA players, at least one per team.
   A near-clone of the F1 game (same mechanics, quips, rankings, superlatives)
   with its own roster, team colors, and Redis namespace.
+- **FMKify Bachelor** (`/bachelor/`) — 20 men of Bachelor Nation (Bachelor
+  leads + famous Bachelorette/Paradise alums). Same clone pattern; see the
+  Bachelor section below and BACHELOR-ROSTER.md.
 
 The site is designed to host more games at additional subpaths.
 
@@ -306,6 +309,33 @@ Structural clone of the F1 client with a different dataset. Differences that mat
 Shared server code: `api/_lib.js` gained generic `emptyTalliesFor(count)` /
 `readTalliesFor(key, count)` helpers plus NBA constants; the original F1
 functions are unchanged wrappers, so `/api/f1/*` handlers were not touched.
+
+---
+
+## The Bachelor Game (bachelor/fmkify-bachelor.jsx)
+
+Structural clone of the NBA client with a different dataset. Differences that
+matter:
+
+- **Roster:** 20 cast members, `CAST` array (id, name, team, num, sub). `team`
+  is a franchise bucket ("The Bachelor" / "The Bachelorette" / "Paradise" /
+  "Host") used only for card colors; `num` is the season number (shown as
+  "S{num}" in the photo fallback); `sub` is the flavor line shown where NBA
+  shows the team name. Ids 1–20 are the API contract (`BACHELOR_COUNT`) —
+  never renumber. See BACHELOR-ROSTER.md.
+- **Photos:** hotlinked from the Bachelor Nation fandom wiki CDN
+  (`static.wikia.nocookie.net/bachelor-nation/...`), verified live at build
+  time. Unlike F1 (Cloudinary face crops) and NBA (uniform 4:3 PNGs), these
+  are mixed-aspect promo portraits, so this game's CSS *does* crop:
+  `.fmk-banner{aspect-ratio:4/3}` + `.player-photo{object-fit:cover;
+  object-position:center 12%}` on desktop and mobile. Faces sit in the top
+  third of every chosen shot, so the top-biased crop works for all 20.
+- **API base:** `/api/bachelor`; routes `/bachelor/` and `/bachelor/rankings/`
+  (rewrites in vercel.json, same pattern as F1/NBA).
+- Redis keys: `bachelor:tallies`, `bachelor:session:{token}`,
+  `bachelor:ip-limit:{ip}` (constants in `api/_lib.js`).
+- Everything else (quips, interaction modes, submit flow, rankings,
+  superlatives, anti-stuffing behavior) matches the F1/NBA sections above.
 
 ---
 
