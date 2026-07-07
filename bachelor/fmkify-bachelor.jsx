@@ -216,7 +216,8 @@ function CastCard({star:p,choice,onAssign,dealDelay,dealing,pulseId,rejectedId,d
       {choice==='m' && <div className="fmk-shimmer"/>}
       <div className="fmk-banner">
         <div className="team-bg" style={{background:`linear-gradient(160deg,${tc} 0%,${tc}44 100%)`}}/>
-        {CAST_PHOTOS[p.id]&&!imgErr && <img src={CAST_PHOTOS[p.id]} alt={p.name} loading="lazy" className="player-photo" onLoad={()=>setImgOk(true)} onError={()=>setImgErr(true)} style={{opacity:imgOk?1:0}}/>}
+        {/* referrerPolicy is load-bearing: the fandom CDN 404s any request with an external Referer */}
+        {CAST_PHOTOS[p.id]&&!imgErr && <img src={CAST_PHOTOS[p.id]} alt={p.name} loading="lazy" referrerPolicy="no-referrer" className="player-photo" onLoad={()=>setImgOk(true)} onError={()=>setImgErr(true)} style={{opacity:imgOk?1:0}}/>}
         <div className="fmk-num" style={{opacity:imgOk&&!imgErr?0:1}}>S{p.num}</div>
         {!isMobile && <div className="helm-emoji" style={{opacity:imgOk&&!imgErr?0:1}}>{ROSES[p.id%ROSES.length]}</div>}
       </div>

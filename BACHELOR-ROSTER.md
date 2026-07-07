@@ -16,7 +16,9 @@
   the "S{num}" fallback when a photo fails; `sub` is the display line.
 - Photos are hotlinked from the Bachelor Nation fandom wiki CDN
   (`static.wikia.nocookie.net/bachelor-nation/...`) — every URL was verified
-  live at build time. They're mixed-aspect promo portraits, so unlike F1/NBA
+  live at build time. The CDN 404s any request carrying an external
+  `Referer`, so the card `<img>` uses `referrerPolicy="no-referrer"`
+  (load-bearing — don't remove). They're mixed-aspect promo portraits, so unlike F1/NBA
   the card CSS crops them (`aspect-ratio:4/3` + `object-fit:cover`,
   `object-position:center 12%` — faces sit in the top third of every shot).
   To switch to self-hosted images later, update `CAST_PHOTOS`.
