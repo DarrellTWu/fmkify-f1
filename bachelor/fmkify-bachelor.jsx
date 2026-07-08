@@ -22,15 +22,30 @@ const CAST = [
   { id:18, name:"Dean Unglert",       team:"Paradise",         num:13, sub:"Rachel's Season · Paradise" },
   { id:19, name:"Tyler Cameron",      team:"The Bachelorette", num:15, sub:"Hannah's Season" },
   { id:20, name:"Dale Moss",          team:"The Bachelorette", num:16, sub:"Clare's Season" },
+  // 21+ appended after launch — ids are the API contract, never renumber.
+  { id:21, name:"Gerry Turner",       team:"Golden",           num:1,  sub:"The Golden Bachelor" },
+  { id:22, name:"Chad Johnson",       team:"The Bachelorette", num:12, sub:"JoJo's Season · The Villain" },
+  { id:23, name:"John Paul Jones",    team:"Paradise",         num:15, sub:"JPJ · Paradise" },
+  { id:24, name:"Joe Amabile",        team:"Paradise",         num:14, sub:"Grocery Store Joe" },
+  { id:25, name:"Jason Mesnick",      team:"The Bachelor",     num:13, sub:"Season 13" },
+  { id:26, name:"Jed Wyatt",          team:"The Bachelorette", num:15, sub:"Hannah's Ex-Winner" },
+  { id:27, name:"Peter Kraus",        team:"The Bachelorette", num:13, sub:"Rachel's Runner-Up" },
+  { id:28, name:"Blake Horstmann",    team:"Paradise",         num:14, sub:"Stagecoach Weekend" },
+  { id:29, name:"Shawn Booth",        team:"The Bachelorette", num:11, sub:"Kaitlyn's Winner" },
+  { id:30, name:"Blake Moynes",       team:"The Bachelorette", num:17, sub:"Katie's Winner" },
+  { id:31, name:"Mike Johnson",       team:"The Bachelorette", num:15, sub:"Hannah's Season" },
+  { id:32, name:"Luke Parker",        team:"The Bachelorette", num:15, sub:"Hannah's Season · The Villain" },
 ];
 
 // Franchise colors — rose red for Bachelor leads, violet for Bachelorette
-// alums, sunset orange for Paradise fixtures, gold for the host.
+// alums, sunset orange for Paradise fixtures, gold for the host,
+// metallic gold for the Golden Bachelor.
 const TC = {
   "The Bachelor":"#FF5C7A",
   "The Bachelorette":"#C77DFF",
   "Paradise":"#FFB347",
   "Host":"#FFD166",
+  "Golden":"#D4AF37",
 };
 
 // Self-hosted promo portraits (bachelor/img/, ~600px WebP), served same-origin
@@ -59,6 +74,18 @@ const CAST_PHOTOS = {
   18:`${IMG_BASE}/dean-unglert.webp`,
   19:`${IMG_BASE}/tyler-cameron.webp`,
   20:`${IMG_BASE}/dale-moss.webp`,
+  21:`${IMG_BASE}/gerry-turner.webp`,
+  22:`${IMG_BASE}/chad-johnson.webp`,
+  23:`${IMG_BASE}/john-paul-jones.webp`,
+  24:`${IMG_BASE}/joe-amabile.webp`,
+  25:`${IMG_BASE}/jason-mesnick.webp`,
+  26:`${IMG_BASE}/jed-wyatt.webp`,
+  27:`${IMG_BASE}/peter-kraus.webp`,
+  28:`${IMG_BASE}/blake-horstmann.webp`,
+  29:`${IMG_BASE}/shawn-booth.webp`,
+  30:`${IMG_BASE}/blake-moynes.webp`,
+  31:`${IMG_BASE}/mike-johnson.webp`,
+  32:`${IMG_BASE}/luke-parker.webp`,
 };
 
 const ROSES = ["🌹","🥂","💌","🚁","🏝️","🕯️","✨","💐","🛥️","🍾","💋"];
@@ -85,6 +112,18 @@ const QUIPS = {
   18: { f:"He'll take you van-life camping exactly once",         m:"You, him, and the van. Forever.",                          k:"Deanie Babies everywhere are inconsolable" },
   19: { f:"The entire nation already called dibs",                m:"He builds houses AND emotional availability",              k:"Hannah Brown would like a word" },
   20: { f:"Episode 4 energy",                                     m:"He proposes by week two — keep up",                        k:"Clare moved on. You can too." },
+  21: { f:"Proof the fantasy suite has no age limit",             m:"He proposes fast. Divorces faster.",                       k:"The pickleball league will avenge him" },
+  22: { f:"All protein, all menace",                              m:"You'll never run out of deli meat again",                  k:"He's outside doing pull-ups about it" },
+  23: { f:"Champagne and chicken nuggets, obviously",             m:"You may now kiss John Paul Jones",                         k:"John Paul Jones. John Paul Jones! JOHN PAUL JONES." },
+  24: { f:"Free samples in aisle five",                           m:"The most normal husband the franchise ever produced",      k:"Chicago riots in the produce section" },
+  25: { f:"Just don't watch After the Final Rose",                m:"He'll choose you. Eventually. Second.",                    k:"Cue the balcony sob" },
+  26: { f:"He's mostly here to promote his music career",         m:"Ask his girlfriend back home first",                       k:"He'll write a sad song about this" },
+  27: { f:"Those dimples earned it",                              m:"He wasn't ready then. He's ready now. Probably.",          k:"He still won't buy the ring" },
+  28: { f:"Stagecoach rules apply",                               m:"He'll text back. Everyone. Always.",                       k:"There's already a voice memo about it" },
+  29: { f:"Discount Ryan Gosling, full-price abs",                m:"The most loyal final rose in years",                       k:"Nick Viall somehow wins again" },
+  30: { f:"He slid into the DMs first, obviously",                m:"He'll love you like an endangered species",                k:"Released back into the wild" },
+  31: { f:"Cutie with a booty, certified",                        m:"The Bachelor we were robbed of, the husband you got",      k:"Not even the Air Force saw this coming" },
+  32: { f:"The Lord will hear about this",                        m:"Hope you like sermons in the fantasy suite",               k:"Hannah already showed you how. Twice." },
 };
 
 // ── Storage ─────────────────────────────────────────────────────
@@ -351,7 +390,7 @@ function GameView({onShowRankings,globalData,onVote}) {
       </div>
       <div className="fmk-instruct">
         <div style={{fontSize:'1rem',fontWeight:700,color:'rgba(255,255,255,.65)',marginBottom:'.1rem'}}>Bachelor Nation Edition</div>
-        <div style={{fontSize:'.78rem',color:'rgba(255,255,255,.3)',marginBottom:'.3rem',fontStyle:'italic'}}>20 leading men. 3 at a time. Will you accept this rose?</div>
+        <div style={{fontSize:'.78rem',color:'rgba(255,255,255,.3)',marginBottom:'.3rem',fontStyle:'italic'}}>32 leading men. 3 at a time. Will you accept this rose?</div>
         Drag or tap <b style={{color:'#ff1744'}}>F🔥</b>{' '}<b style={{color:'#2979ff'}}>M💍</b>{' '}<b style={{color:'#aa00ff'}}>K💀</b> … you know the rules.
       </div>
 

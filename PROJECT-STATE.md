@@ -17,9 +17,9 @@ Three games are live:
 - **FMKify NBA** (`/nba/`) — 52 high-profile NBA players, at least one per team.
   A near-clone of the F1 game (same mechanics, quips, rankings, superlatives)
   with its own roster, team colors, and Redis namespace.
-- **FMKify Bachelor** (`/bachelor/`) — 20 men of Bachelor Nation (Bachelor
-  leads + famous Bachelorette/Paradise alums). Same clone pattern; see the
-  Bachelor section below and BACHELOR-ROSTER.md.
+- **FMKify Bachelor** (`/bachelor/`) — 32 men of Bachelor Nation (Bachelor
+  leads incl. the Golden Bachelor + famous Bachelorette/Paradise alums).
+  Same clone pattern; see the Bachelor section below and BACHELOR-ROSTER.md.
 
 The site is designed to host more games at additional subpaths.
 
@@ -317,11 +317,12 @@ functions are unchanged wrappers, so `/api/f1/*` handlers were not touched.
 Structural clone of the NBA client with a different dataset. Differences that
 matter:
 
-- **Roster:** 20 cast members, `CAST` array (id, name, team, num, sub). `team`
-  is a franchise bucket ("The Bachelor" / "The Bachelorette" / "Paradise" /
-  "Host") used only for card colors; `num` is the season number (shown as
+- **Roster:** 32 cast members (20 at launch, +12 by owner request), `CAST`
+  array (id, name, team, num, sub). `team` is a franchise bucket
+  ("The Bachelor" / "The Bachelorette" / "Paradise" / "Host" / "Golden")
+  used only for card colors; `num` is the season number (shown as
   "S{num}" in the photo fallback); `sub` is the flavor line shown where NBA
-  shows the team name. Ids 1–20 are the API contract (`BACHELOR_COUNT`) —
+  shows the team name. Ids 1–32 are the API contract (`BACHELOR_COUNT`) —
   never renumber. See BACHELOR-ROSTER.md.
 - **Photos:** self-hosted WebP portraits in `bachelor/img/` (~600px wide,
   ~1.4 MB total), served same-origin by Vercel. Originally sourced from the

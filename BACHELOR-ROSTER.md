@@ -5,8 +5,13 @@
 
 ## Selection principles
 
-- **20 men of Bachelor Nation** — 15 Bachelor leads (S5–S29), 4 famous
+- **32 men of Bachelor Nation** (20 at launch, +12 by owner request) —
+  16 Bachelor leads (S5–S29 plus the Golden Bachelor), 15 famous
   Bachelorette/Paradise alums, and the host.
+- Hannah Brown's season (Bachelorette 15) is deliberately over-represented
+  (Tyler, Jed, JPJ, Mike, Luke P — and Pilot Pete was on it too): it's the
+  most famous season in franchise history and every one of them is a
+  household name in Bachelor Nation.
 - **Fun first, but broadly recognizable.** Meme value and quip potential
   (Juan Pablo's "ees okay", Clayton's "intimate with both of you", Colton's
   fence jump, Pilot Pete's windmill) counted alongside name recognition.
@@ -20,10 +25,10 @@
   promo portraits, so unlike F1/NBA the card CSS crops them
   (`aspect-ratio:4/3` + `object-fit:cover`, `object-position:center 12%` —
   faces sit in the top third of every shot).
-- Ids 1–20 are the API contract (`BACHELOR_COUNT`); new cast members are
+- Ids 1–32 are the API contract (`BACHELOR_COUNT`); new cast members are
   appended with new ids — never renumber existing ids.
 
-## The roster (20)
+## The roster (32)
 
 | ID | Name | Franchise | Season | Known for |
 |---:|---|---|---:|---|
@@ -47,3 +52,15 @@
 | 18 | Dean Unglert | Paradise | 13 | "Deanie Babies", van life |
 | 19 | Tyler Cameron | The Bachelorette | 15 | Hannah's runner-up, fan favorite |
 | 20 | Dale Moss | The Bachelorette | 16 | Clare's episode-4 engagement |
+| 21 | Gerry Turner | Golden | 1 | The Golden Bachelor, 3-month marriage |
+| 22 | Chad Johnson | The Bachelorette | 12 | The villain, deli meat platters |
+| 23 | John Paul Jones | Paradise | 15 | JPJ, champagne & chicken nuggets |
+| 24 | Joe Amabile | Paradise | 14 | Grocery Store Joe, m. Serena Pitt |
+| 25 | Jason Mesnick | The Bachelor | 13 | The After the Final Rose switch |
+| 26 | Jed Wyatt | The Bachelorette | 15 | Won Hannah's season with a girlfriend back home |
+| 27 | Peter Kraus | The Bachelorette | 13 | Rachel's runner-up, wouldn't propose |
+| 28 | Blake Horstmann | Paradise | 14 | Becca's runner-up, Stagecoach weekend |
+| 29 | Shawn Booth | The Bachelorette | 11 | Kaitlyn's winner |
+| 30 | Blake Moynes | The Bachelorette | 17 | Katie's winner, wildlife manager, DM slider |
+| 31 | Mike Johnson | The Bachelorette | 15 | Fan-favorite, the Bachelor lead we never got |
+| 32 | Luke Parker | The Bachelorette | 15 | Hannah's infamous villain |

@@ -50,7 +50,7 @@ export const NBA_SESSION_PREFIX = "nba:session:";
 export const NBA_IP_LIMIT_PREFIX = "nba:ip-limit:";
 
 // Bachelor game — same mechanics, separate roster + Redis namespace.
-export const BACHELOR_COUNT = 20;
+export const BACHELOR_COUNT = 32;
 export const BACHELOR_TALLIES_KEY = "bachelor:tallies";
 export const BACHELOR_SESSION_PREFIX = "bachelor:session:";
 export const BACHELOR_IP_LIMIT_PREFIX = "bachelor:ip-limit:";
