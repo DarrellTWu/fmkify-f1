@@ -4,16 +4,20 @@ import {
   COOLDOWN_MS, SESSION_BUDGET, SESSION_TTL, TOKEN_RATE_LIMIT_TTL,
   SKYRIM_COUNT, SKYRIM_TALLIES_KEY, SKYRIM_SESSION_PREFIX, SKYRIM_IP_LIMIT_PREFIX,
   readTalliesFor,
-} from "../_lib.js";
+} from "./_lib.js";
 
-// All three Skyrim endpoints live in this one dynamic-route function
-// (token / tallies / vote) instead of three files like the other games:
-// the Vercel Hobby plan allows 12 serverless functions per deployment and
-// the fourth game would have pushed the count to 13. URLs are unchanged —
-// /api/skyrim/token, /api/skyrim/tallies, /api/skyrim/vote.
+// All three Skyrim endpoints live in this ONE function, selected by query
+// param (?action=token|tallies|vote), instead of three files like the other
+// games: the Vercel Hobby plan allows 12 serverless functions per deployment
+// and the fourth game would have pushed the count to 13.
+//
+// This is deliberately an exact-file route (like api/poll.js) and NOT a
+// dynamic route (api/skyrim/[action].js). The dynamic-route version was
+// tried first and returned platform-level 404s in production — see
+// PROJECT-STATE.md "Nuances and Gotchas".
 
 // ---------------------------------------------------------------------------
-// GET /api/skyrim/token
+// GET /api/skyrim?action=token
 // ---------------------------------------------------------------------------
 async function token(req, res) {
   if (req.method !== "GET") {
@@ -52,7 +56,7 @@ async function token(req, res) {
 }
 
 // ---------------------------------------------------------------------------
-// GET /api/skyrim/tallies
+// GET /api/skyrim?action=tallies
 // ---------------------------------------------------------------------------
 async function tallies(req, res) {
   if (req.method !== "GET") {
@@ -67,7 +71,7 @@ async function tallies(req, res) {
 }
 
 // ---------------------------------------------------------------------------
-// POST /api/skyrim/vote
+// POST /api/skyrim?action=vote
 // ---------------------------------------------------------------------------
 function validatePayload(body) {
   const { f, m, k } = body || {};
@@ -155,7 +159,7 @@ export default async function handler(req, res) {
     if (action === "vote")    return await vote(req, res);
     return errorJson(res, 404, "not_found", "Unknown endpoint.");
   } catch (err) {
-    console.error(`/api/skyrim/${action} error:`, err);
+    console.error(`/api/skyrim?action=${action} error:`, err);
     return errorJson(res, 500, "internal", "Could not process request.");
   }
 }

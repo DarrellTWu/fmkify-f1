@@ -168,8 +168,11 @@ const QUIPS = {
 };
 
 // ── Storage ─────────────────────────────────────────────────────
-// API_BASE: set to "/api/skyrim" for the /skyrim subpath deployment,
-// or to a full URL (e.g. "https://www.fmkify.com/api/skyrim") during local dev.
+// API_BASE: set to "/api/skyrim" for the production deployment, or to a full
+// URL (e.g. "https://www.fmkify.com/api/skyrim") during local dev.
+// Unlike the other games (three endpoint files), Skyrim's API is ONE Vercel
+// function selected by query param: /api/skyrim?action=token|tallies|vote
+// (Hobby-plan function limit — see PROJECT-STATE.md).
 const API_BASE = "/api/skyrim";
 
 function emptyTallies() {
@@ -180,7 +183,7 @@ function emptyTallies() {
 async function fetchToken(retries = 2) {
   for (let i = 0; i <= retries; i++) {
     try {
-      const r = await fetch(`${API_BASE}/token`);
+      const r = await fetch(`${API_BASE}?action=token`);
       if (r.ok) {
         const data = await r.json();
         return data.token || null;
@@ -198,7 +201,7 @@ async function fetchToken(retries = 2) {
 
 async function loadGlobal() {
   try {
-    const r = await fetch(`${API_BASE}/tallies`);
+    const r = await fetch(`${API_BASE}?action=tallies`);
     if (!r.ok) return null;
     return await r.json();
   } catch(e) { return null; }
@@ -208,7 +211,7 @@ async function loadGlobal() {
 // error is the parsed error response body on 4xx/5xx.
 async function recordVote(vote, token) {
   try {
-    const r = await fetch(`${API_BASE}/vote`, {
+    const r = await fetch(`${API_BASE}?action=vote`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ f: vote.f, m: vote.m, k: vote.k, token }),

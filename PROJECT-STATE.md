@@ -281,6 +281,23 @@ Vercel's `trailingSlash: true` setting auto-redirects all URLs to include a trai
 ### Cloudinary face cropping
 Do NOT layer CSS cropping (`object-fit`, `aspect-ratio`, `object-position`) on top of Cloudinary's `g_face` gravity. They fight each other unpredictably across different driver photos. Let Cloudinary deliver the exact crop via URL parameters and render the image at natural dimensions with `width:100%` only.
 
+### Dynamic API routes (`api/**/[param].js`) 404 in this project
+The first Skyrim API shipped as `api/skyrim/[action].js` (Vercel dynamic
+route). It deployed without errors but every request —
+`/api/skyrim/token`, with or without the trailing slash the platform's
+`trailingSlash: true` 308 adds — returned Vercel's platform-level
+`NOT_FOUND`, while the sibling exact-file functions (`api/bachelor/*.js`)
+worked from the same deployment. The client degrades gracefully on API
+failure by design, so the game LOOKED fine while silently recording
+nothing. Root cause not fully pinned down (no-framework static project +
+`trailingSlash: true` + zero-config functions); fix was to avoid dynamic
+segments entirely and use an exact file with a query param
+(`api/skyrim.js`, `?action=...`), the same shape as the long-proven
+`api/poll.js`. If consolidating other games' functions later, use the
+query-param pattern, not `[param].js`. When adding any new endpoint,
+curl the production URL after deploy — don't trust the UI, it hides API
+failures.
+
 ### Deployment order
 API routes and client must be deployed together (or API first). If the client deploys with new API paths before the routes exist, all fetches 404. In practice this is handled by Vercel's atomic deployments from Git push — everything ships at once.
 
@@ -374,12 +391,14 @@ re-theme. Differences that matter:
   F/M/K colors are unchanged (shared across all games).
 - **API base:** `/api/skyrim`; routes `/skyrim/` and `/skyrim/rankings/`
   (rewrites in vercel.json, same pattern).
-- **API is ONE file, not three:** `api/skyrim/[action].js` is a Vercel
-  dynamic route handling token/tallies/vote via `req.query.action`. The
-  Hobby plan caps deployments at 12 serverless functions; three more files
-  would have made 13 (poll + 3×3 existing games + 3). URLs are identical to
-  the other games' contracts. If another game is added, convert an existing
-  game's three files to this pattern to free up slots.
+- **API is ONE file, not three:** `api/skyrim.js` handles token/tallies/vote
+  selected by query param (`/api/skyrim?action=token|tallies|vote`) —
+  same exact-file + query pattern as `api/poll.js`. The Hobby plan caps
+  deployments at 12 serverless functions; three more files would have made
+  13 (poll + 3×3 existing games + 3). NOTE: a dynamic route
+  (`api/skyrim/[action].js`) was tried first and 404'd in production — see
+  Gotchas. If another game is added, convert an existing game's three files
+  to this query-param pattern to free up slots.
 - Redis keys: `skyrim:tallies`, `skyrim:session:{token}`,
   `skyrim:ip-limit:{ip}` (constants in `api/_lib.js`).
 - Everything else (quips, interaction modes, submit flow, rankings,
