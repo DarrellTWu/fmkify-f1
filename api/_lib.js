@@ -55,6 +55,12 @@ export const BACHELOR_TALLIES_KEY = "bachelor:tallies";
 export const BACHELOR_SESSION_PREFIX = "bachelor:session:";
 export const BACHELOR_IP_LIMIT_PREFIX = "bachelor:ip-limit:";
 
+// Skyrim game — same mechanics, separate roster + Redis namespace.
+export const SKYRIM_COUNT = 42;
+export const SKYRIM_TALLIES_KEY = "skyrim:tallies";
+export const SKYRIM_SESSION_PREFIX = "skyrim:session:";
+export const SKYRIM_IP_LIMIT_PREFIX = "skyrim:ip-limit:";
+
 // ---------------------------------------------------------------------------
 // Tallies helpers — single-key storage
 // ---------------------------------------------------------------------------

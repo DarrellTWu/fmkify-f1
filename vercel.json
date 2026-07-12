@@ -17,6 +17,8 @@
     { "source": "/nba/rankings", "destination": "/nba/index.html" },
     { "source": "/nba/rankings/", "destination": "/nba/index.html" },
     { "source": "/bachelor/rankings", "destination": "/bachelor/index.html" },
-    { "source": "/bachelor/rankings/", "destination": "/bachelor/index.html" }
+    { "source": "/bachelor/rankings/", "destination": "/bachelor/index.html" },
+    { "source": "/skyrim/rankings", "destination": "/skyrim/index.html" },
+    { "source": "/skyrim/rankings/", "destination": "/skyrim/index.html" }
   ]
 }

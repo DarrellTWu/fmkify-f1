@@ -11,7 +11,7 @@
 
 FMKify is a "F*ck, Marry, Kill" voting game platform. Users are shown 3 random people from a roster, assign F/M/K to each, and submit. Community-wide tallies are tracked and displayed on a rankings page.
 
-Three games are live:
+Four games are live:
 
 - **FMKify F1** (`/f1/`) — the 2026 Formula 1 grid (22 drivers). The original game.
 - **FMKify NBA** (`/nba/`) — 52 high-profile NBA players, at least one per team.
@@ -20,6 +20,10 @@ Three games are live:
 - **FMKify Bachelor** (`/bachelor/`) — 32 men of Bachelor Nation (Bachelor
   leads incl. the Golden Bachelor + famous Bachelorette/Paradise alums).
   Same clone pattern; see the Bachelor section below and BACHELOR-ROSTER.md.
+- **FMKify Skyrim** (`/skyrim/`) — 42 Elder Scrolls: Skyrim characters
+  (followers, jarls, the Whiterun meme ecosystem, Paarthurnax, and all
+  sixteen Daedric Princes). Same clone pattern with a Nordic re-theme;
+  see the Skyrim section below and SKYRIM-ROSTER.md.
 
 The site is designed to host more games at additional subpaths.
 
@@ -340,6 +344,46 @@ matter:
   `bachelor:ip-limit:{ip}` (constants in `api/_lib.js`).
 - Everything else (quips, interaction modes, submit flow, rankings,
   superlatives, anti-stuffing behavior) matches the F1/NBA sections above.
+
+---
+
+## The Skyrim Game (skyrim/fmkify-skyrim.jsx)
+
+Structural clone of the Bachelor client with a different dataset and a Nordic
+re-theme. Differences that matter:
+
+- **Roster:** 42 characters, `CAST` array (id, name, team, tag, sub) — incl.
+  all sixteen Daedric Princes with a Skyrim presence (ids 27–42). `team`
+  is a faction bucket (14 buckets: Whiterun, Companions, Stormcloaks, Empire,
+  Dark Brotherhood, Thieves Guild, Riften, Riverwood, Blades, College,
+  Dov, Daedra, Volkihar, Wanderer) used only for card colors;
+  `tag` is a short race/archetype string shown as the photo fallback (where
+  Bachelor shows "S{num}"); `sub` is the flavor line. Ids 1–42 are the API
+  contract (`SKYRIM_COUNT`) — never renumber. (Ids were restructured once
+  pre-launch, 2026-07-08, when the roster went 32→42; safe because no
+  deploy/votes existed yet.) See SKYRIM-ROSTER.md.
+- **Photos:** self-hosted ~600px JPGs in `skyrim/img/` (~5 MB total), served
+  same-origin. Sourced from the UESP wiki via its MediaWiki `pageimages` API
+  (self-hosted per the Bachelor lesson about wiki CDN hotlinking). Mortals
+  are Skyrim NPC screenshots; faceless-in-Skyrim Daedric Princes use their
+  shrine/manifestation shot or UESP's ESO/Legends art. Mostly square
+  full-body shots, so card CSS crops to 4:3 with
+  `object-position:center 18%` (faces sit in the top quarter).
+- **Theme:** the pink Bachelor palette is swapped for frost blue + gold
+  (`--frost:#58C9E6`, `--gold:#E8A33D`) over a dark blue-gray background.
+  F/M/K colors are unchanged (shared across all games).
+- **API base:** `/api/skyrim`; routes `/skyrim/` and `/skyrim/rankings/`
+  (rewrites in vercel.json, same pattern).
+- **API is ONE file, not three:** `api/skyrim/[action].js` is a Vercel
+  dynamic route handling token/tallies/vote via `req.query.action`. The
+  Hobby plan caps deployments at 12 serverless functions; three more files
+  would have made 13 (poll + 3×3 existing games + 3). URLs are identical to
+  the other games' contracts. If another game is added, convert an existing
+  game's three files to this pattern to free up slots.
+- Redis keys: `skyrim:tallies`, `skyrim:session:{token}`,
+  `skyrim:ip-limit:{ip}` (constants in `api/_lib.js`).
+- Everything else (quips, interaction modes, submit flow, rankings,
+  superlatives, anti-stuffing behavior) matches the sections above.
 
 ---
 

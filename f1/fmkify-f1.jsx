@@ -562,7 +562,13 @@ function Footer() {
         <span className="footer-sep">·</span>
         <a href="mailto:admin@fmkify.com" className="footer-link">admin@fmkify.com</a>
       </div>
-      <a href="/nba/" className="footer-cta">🏀 New: FMKify NBA is live — go judge the league →</a>
+      <div className="footer-row">
+        <a href="/skyrim/" className="footer-cta">🐉 New: FMKify Skyrim →</a>
+        <span className="footer-sep">·</span>
+        <a href="/nba/" className="footer-cta">🏀 FMKify NBA →</a>
+        <span className="footer-sep">·</span>
+        <a href="/bachelor/" className="footer-cta">🌹 FMKify Bachelor →</a>
+      </div>
     </div>
   );
 }
