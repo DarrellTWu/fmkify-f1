@@ -9,7 +9,7 @@
   all 30 NBA teams are represented.
 - **Fun first, but broadly recognizable.** Meme value, personality, and
   quip potential (Westbrook, Draymond, Kyrie) counted alongside star power.
-- Star-dense teams get extra slots (Mavs, 76ers ×4; Warriors ×3);
+- Star-dense teams get extra slots (Mavs ×4; Warriors, 76ers ×3);
   thinner rosters get their most recognizable name.
 - Every player's official NBA CDN headshot
   (`cdn.nba.com/headshots/nba/latest/1040x760/{id}.png`) was verified live at
@@ -53,7 +53,7 @@
 | 32 | Jalen Brunson | Knicks | 11 |
 | 33 | Karl-Anthony Towns | Knicks | 32 |
 | 34 | Joel Embiid | 76ers | 21 |
-| 35 | Tyrese Maxey | 76ers | 0 |
+| 35 | Josh Giddey | Bulls | 3 |
 | 36 | Paul George | 76ers | 8 |
 | 37 | Giannis Antetokounmpo | Bucks | 34 |
 | 38 | Donovan Mitchell | Cavaliers | 45 |
