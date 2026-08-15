@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 
 const PLAYERS = [
-  { id:1,  name:"LeBron James",            team:"Lakers",        num:23 },
+  { id:1,  name:"LeBron James",            team:"76ers",         num:23 },
   { id:2,  name:"Luka Dončić",             team:"Lakers",        num:77 },
   { id:3,  name:"Austin Reaves",           team:"Lakers",        num:15 },
   { id:4,  name:"Stephen Curry",           team:"Warriors",      num:30 },
